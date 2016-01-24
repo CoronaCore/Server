@@ -96,7 +96,7 @@
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
   <ImportGroup Label="PropertySheets">
-    <Import Project="$(LocalAppData)\Microsoft\VisualStudio\10.0\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(LocalAppData)\Microsoft\VisualStudio\10.0\Microsoft.Cpp.$(Platform).user.props')" />
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
@@ -322,7 +322,6 @@
     <ClInclude Include="..\..\src\framework\Utilities\LinkedReference\Reference.h" />
     <ClInclude Include="..\..\src\framework\Utilities\LinkedReference\RefManager.h" />
     <ClInclude Include="..\..\src\framework\Utilities\TypeList.h" />
-    <ClInclude Include="..\..\src\framework\Utilities\UnorderedMapSet.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\framework\Policies\MemoryManagement.cpp" />
