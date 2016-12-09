@@ -17,14 +17,13 @@
  */
 
 #include "Totem.h"
-#include "WorldPacket.h"
 #include "Log.h"
 #include "Group.h"
 #include "Player.h"
 #include "ObjectMgr.h"
 #include "SpellMgr.h"
 #include "DBCStores.h"
-#include "CreatureAI.h"
+#include "AI/CreatureAI.h"
 #include "InstanceData.h"
 #include "LuaEngine.h"
 
@@ -67,6 +66,10 @@ bool Totem::Create(uint32 guidlow, CreatureCreatePos& cPos, CreatureInfo const* 
 
     LoadCreatureAddon(false);
 
+    SetCanDodge(false);
+    SetCanParry(false);
+    SetCanBlock(false);
+
     return true;
 }
 
@@ -92,15 +95,15 @@ void Totem::Update(uint32 update_diff, uint32 time)
 
 void Totem::Summon(Unit* owner)
 {
-    AIM_Initialize();
     owner->GetMap()->Add((Creature*)this);
+    AIM_Initialize();
 
     WorldPacket data(SMSG_GAMEOBJECT_SPAWN_ANIM_OBSOLETE, 8);
     data << GetObjectGuid();
-    SendMessageToSet(&data, true);
+    SendMessageToSet(data, true);
 
-    if (owner->GetTypeId() == TYPEID_UNIT && ((Creature*)owner)->AI())
-        ((Creature*)owner)->AI()->JustSummoned((Creature*)this);
+    if (owner->AI())
+        owner->AI()->JustSummoned((Creature*)this);
     sEluna->OnSummoned(this, owner);
 
     // there are some totems, which exist just for their visual appeareance
@@ -110,10 +113,10 @@ void Totem::Summon(Unit* owner)
     switch (m_type)
     {
         case TOTEM_PASSIVE:
-            CastSpell(this, GetSpell(), true);
+            CastSpell(this, GetSpell(), TRIGGERED_OLD_TRIGGERED);
             break;
         case TOTEM_STATUE:
-            CastSpell(GetOwner(), GetSpell(), true);
+            CastSpell(GetOwner(), GetSpell(), TRIGGERED_OLD_TRIGGERED);
             break;
         default: break;
     }
@@ -146,8 +149,8 @@ void Totem::UnSummon()
             }
         }
 
-        if (owner->GetTypeId() == TYPEID_UNIT && ((Creature*)owner)->AI())
-            ((Creature*)owner)->AI()->SummonedCreatureDespawn((Creature*)this);
+        if (owner->AI())
+            owner->AI()->SummonedCreatureDespawn((Creature*)this);
     }
 
     // any totem unsummon look like as totem kill, req. for proper animation
@@ -165,7 +168,7 @@ void Totem::SetOwner(Unit* owner)
     SetLevel(owner->getLevel());
 }
 
-Unit* Totem::GetOwner()
+Unit* Totem::GetOwner() const
 {
     if (ObjectGuid ownerGuid = GetOwnerGuid())
         return ObjectAccessor::GetUnit(*this, ownerGuid);
@@ -192,7 +195,7 @@ bool Totem::IsImmuneToSpellEffect(SpellEntry const* spellInfo, SpellEffectIndex 
     // Totem may affected by some specific spells
     // Mana Spring, Healing stream, Mana tide
     // Flags : 0x00000002000 | 0x00000004000 | 0x00004000000 -> 0x00004006000
-    if (spellInfo->SpellFamilyName == SPELLFAMILY_SHAMAN && spellInfo->IsFitToFamilyMask(UI64LIT(0x00004006000)))
+    if (spellInfo->SpellFamilyName == SPELLFAMILY_SHAMAN && spellInfo->IsFitToFamilyMask(uint64(0x00004006000)))
         return false;
 
     switch (spellInfo->Effect[index])

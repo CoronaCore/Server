@@ -21,14 +21,9 @@
 
 #include "Platform/Define.h"
 #include "Policies/Singleton.h"
-#include "DBCStructure.h"
 #include "GridDefines.h"
-#include "Object.h"
-#include "SharedDefines.h"
 
 #include <atomic>
-#include <bitset>
-#include <list>
 #include <mutex>
 
 class Creature;
@@ -181,11 +176,11 @@ class GridMap
         static bool ExistMap(uint32 mapid, int gx, int gy);
         static bool ExistVMap(uint32 mapid, int gx, int gy);
 
-        uint16 getArea(float x, float y);
-        float getHeight(float x, float y) { return (this->*m_gridGetHeight)(x, y); }
-        float getLiquidLevel(float x, float y);
-        uint8 getTerrainType(float x, float y);
-        GridMapLiquidStatus getLiquidStatus(float x, float y, float z, uint8 ReqLiquidType, GridMapLiquidData* data = 0);
+        uint16 getArea(float x, float y) const;
+        float getHeight(float x, float y) const { return (this->*m_gridGetHeight)(x, y); }
+        float getLiquidLevel(float x, float y) const;
+        uint8 getTerrainType(float x, float y) const;
+        GridMapLiquidStatus getLiquidStatus(float x, float y, float z, uint8 ReqLiquidType, GridMapLiquidData* data = nullptr);
 };
 
 template<typename Countable>
@@ -226,13 +221,13 @@ class MANGOS_DLL_SPEC TerrainInfo : public Referencable<std::atomic_long>
         float GetHeightStatic(float x, float y, float z, bool checkVMap = true, float maxSearchDist = DEFAULT_HEIGHT_SEARCH) const;
         float GetWaterLevel(float x, float y, float z, float* pGround = nullptr) const;
         float GetWaterOrGroundLevel(float x, float y, float z, float* pGround = nullptr, bool swim = false) const;
-        bool IsInWater(float x, float y, float z, GridMapLiquidData* data = 0) const;
-        bool IsSwimmable(float x, float y, float pZ, float radius = 1.5f, GridMapLiquidData* data = 0) const;
+        bool IsInWater(float x, float y, float z, GridMapLiquidData* data = nullptr) const;
+        bool IsSwimmable(float x, float y, float pZ, float radius = 1.5f, GridMapLiquidData* data = nullptr) const;
         bool IsUnderWater(float x, float y, float z) const;
 
-        GridMapLiquidStatus getLiquidStatus(float x, float y, float z, uint8 ReqLiquidType, GridMapLiquidData* data = 0) const;
+        GridMapLiquidStatus getLiquidStatus(float x, float y, float z, uint8 ReqLiquidType, GridMapLiquidData* data = nullptr) const;
 
-        uint16 GetAreaFlag(float x, float y, float z, bool* isOutdoors = 0) const;
+        uint16 GetAreaFlag(float x, float y, float z, bool* isOutdoors = nullptr) const;
         uint8 GetTerrainType(float x, float y) const;
 
         uint32 GetAreaId(float x, float y, float z) const;
@@ -305,7 +300,7 @@ class TerrainManager : public MaNGOS::Singleton<TerrainManager, MaNGOS::ClassLev
         {
             return TerrainManager::GetZoneIdByAreaFlag(GetAreaFlag(mapid, x, y, z), mapid);
         }
-        void GetZoneAndAreaId(uint32& zoneid, uint32& areaid, uint32 mapid, float x, float y, float z)
+        void GetZoneAndAreaId(uint32& zoneid, uint32& areaid, uint32 mapid, float x, float y, float z) const
         {
             TerrainManager::GetZoneAndAreaIdByAreaFlag(zoneid, areaid, GetAreaFlag(mapid, x, y, z), mapid);
         }

@@ -25,14 +25,14 @@
 
 #include "Common.h"
 #include "Timer.h"
-#include "Policies/Singleton.h"
 #include "SharedDefines.h"
 
-#include <map>
 #include <set>
 #include <list>
 #include <deque>
 #include <mutex>
+#include <functional>
+#include <vector>
 
 class Object;
 class ObjectGuid;
@@ -74,7 +74,8 @@ enum WorldTimers
     WUPDATE_EVENTS      = 3,
     WUPDATE_DELETECHARS = 4,
     WUPDATE_AHBOT       = 5,
-    WUPDATE_COUNT       = 6
+    WUPDATE_GROUPS      = 6,
+    WUPDATE_COUNT       = 7
 };
 
 /// Configuration elements
@@ -147,6 +148,8 @@ enum eConfigUInt32Values
     CONFIG_UINT32_CREATURE_FAMILY_FLEE_DELAY,
     CONFIG_UINT32_WORLD_BOSS_LEVEL_DIFF,
     CONFIG_UINT32_QUEST_DAILY_RESET_HOUR,
+    CONFIG_UINT32_QUEST_WEEKLY_RESET_WEEK_DAY,
+    CONFIG_UINT32_QUEST_WEEKLY_RESET_HOUR,
     CONFIG_UINT32_CHAT_STRICT_LINK_CHECKING_SEVERITY,
     CONFIG_UINT32_CHAT_STRICT_LINK_CHECKING_KICK,
     CONFIG_UINT32_CORPSE_DECAY_NORMAL,
@@ -163,6 +166,7 @@ enum eConfigUInt32Values
     CONFIG_UINT32_ARENA_RATING_DISCARD_TIMER,
     CONFIG_UINT32_ARENA_AUTO_DISTRIBUTE_INTERVAL_DAYS,
     CONFIG_UINT32_ARENA_SEASON_ID,
+    CONFIG_UINT32_GROUP_OFFLINE_LEADER_DELAY,
     CONFIG_UINT32_GUILD_EVENT_LOG_COUNT,
     CONFIG_UINT32_GUILD_BANK_EVENT_LOG_COUNT,
     CONFIG_UINT32_TIMERBAR_FATIGUE_GMLEVEL,
@@ -178,6 +182,7 @@ enum eConfigUInt32Values
     CONFIG_UINT32_GUID_RESERVE_SIZE_CREATURE,
     CONFIG_UINT32_GUID_RESERVE_SIZE_GAMEOBJECT,
     CONFIG_UINT32_CREATURE_RESPAWN_AGGRO_DELAY,
+    CONFIG_UINT32_MAX_WHOLIST_RETURNS,
     CONFIG_UINT32_VALUE_COUNT
 };
 
@@ -210,7 +215,9 @@ enum eConfigFloatValues
     CONFIG_FLOAT_RATE_DROP_ITEM_LEGENDARY,
     CONFIG_FLOAT_RATE_DROP_ITEM_ARTIFACT,
     CONFIG_FLOAT_RATE_DROP_ITEM_REFERENCED,
+    CONFIG_FLOAT_RATE_DROP_ITEM_QUEST,
     CONFIG_FLOAT_RATE_DROP_MONEY,
+    CONFIG_FLOAT_RATE_PET_XP_KILL,
     CONFIG_FLOAT_RATE_XP_KILL,
     CONFIG_FLOAT_RATE_XP_QUEST,
     CONFIG_FLOAT_RATE_XP_EXPLORE,
@@ -405,25 +412,20 @@ enum RealmZone
 /// Storage class for commands issued for delayed execution
 struct CliCommandHolder
 {
-    typedef void Print(void*, const char*);
-    typedef void CommandFinished(void*, bool success);
+    typedef std::function<void(const char *)> Print;
+    typedef std::function<void(bool)> CommandFinished;
 
     uint32 m_cliAccountId;                                  // 0 for console and real account id for RA/soap
     AccountTypes m_cliAccessLevel;
-    void* m_callbackArg;
-    char* m_command;
-    Print* m_print;
-    CommandFinished* m_commandFinished;
+    std::vector<char> m_command;
+    Print m_print;
+    CommandFinished m_commandFinished;
 
-    CliCommandHolder(uint32 accountId, AccountTypes cliAccessLevel, void* callbackArg, const char* command, Print* zprint, CommandFinished* commandFinished)
-        : m_cliAccountId(accountId), m_cliAccessLevel(cliAccessLevel), m_callbackArg(callbackArg), m_print(zprint), m_commandFinished(commandFinished)
+    CliCommandHolder(uint32 accountId, AccountTypes cliAccessLevel, const char* command, Print print, CommandFinished commandFinished)
+        : m_cliAccountId(accountId), m_cliAccessLevel(cliAccessLevel), m_command(strlen(command) + 1), m_print(print), m_commandFinished(commandFinished)
     {
-        size_t len = strlen(command) + 1;
-        m_command = new char[len];
-        memcpy(m_command, command, len);
+        memcpy(&m_command[0], command, m_command.size() - 1);
     }
-
-    ~CliCommandHolder() { delete[] m_command; }
 };
 
 /// The World
@@ -498,8 +500,8 @@ class World
         void LoadConfigSettings(bool reload = false);
 
         void SendWorldText(int32 string_id, ...);
-        void SendGlobalMessage(WorldPacket* packet);
-        void SendServerMessage(ServerMessageType type, const char* text = "", Player* player = nullptr);
+        void SendGlobalMessage(WorldPacket const& packet) const;
+        void SendServerMessage(ServerMessageType type, const char* text = "", Player* player = nullptr) const;
         void SendZoneUnderAttackMessage(uint32 zoneId, Team team);
         void SendDefenseMessage(uint32 zoneId, int32 textId);
 
@@ -537,11 +539,11 @@ class World
         bool getConfig(eConfigBoolValues index) const { return m_configBoolValues[index]; }
 
         /// Get configuration about force-loaded maps
-        std::set<uint32>* getConfigForceLoadMapIds() const { return m_configForceLoadMapIds; }
+        bool isForceLoadMap(uint32 id) const { return m_configForceLoadMapIds.find(id) != m_configForceLoadMapIds.end(); }
 
         /// Are we on a "Player versus Player" server?
-        bool IsPvPRealm() { return (getConfig(CONFIG_UINT32_GAME_TYPE) == REALM_TYPE_PVP || getConfig(CONFIG_UINT32_GAME_TYPE) == REALM_TYPE_RPPVP || getConfig(CONFIG_UINT32_GAME_TYPE) == REALM_TYPE_FFA_PVP); }
-        bool IsFFAPvPRealm() { return getConfig(CONFIG_UINT32_GAME_TYPE) == REALM_TYPE_FFA_PVP; }
+        bool IsPvPRealm() const { return (getConfig(CONFIG_UINT32_GAME_TYPE) == REALM_TYPE_PVP || getConfig(CONFIG_UINT32_GAME_TYPE) == REALM_TYPE_RPPVP || getConfig(CONFIG_UINT32_GAME_TYPE) == REALM_TYPE_FFA_PVP); }
+        bool IsFFAPvPRealm() const { return getConfig(CONFIG_UINT32_GAME_TYPE) == REALM_TYPE_FFA_PVP; }
 
         void KickAll();
         void KickAllLess(AccountTypes sec);
@@ -561,7 +563,7 @@ class World
         static uint32 GetRelocationAINotifyDelay()          { return m_relocation_ai_notify_delay; }
 
         void ProcessCliCommands();
-        void QueueCliCommand(CliCommandHolder* commandHolder) { std::lock_guard<std::mutex> guard(m_cliCommandQueueLock); m_cliCommandQueue.push_back(commandHolder); }
+        void QueueCliCommand(const CliCommandHolder* commandHolder) { std::lock_guard<std::mutex> guard(m_cliCommandQueueLock); m_cliCommandQueue.push_back(commandHolder); }
 
         void UpdateResultQueue();
         void InitResultQueue();
@@ -572,8 +574,8 @@ class World
 
         // used World DB version
         void LoadDBVersion();
-        char const* GetDBVersion() { return m_DBVersion.c_str(); }
-        char const* GetCreatureEventAIVersion() { return m_CreatureEventAIVersion.c_str(); }
+        char const* GetDBVersion() const { return m_DBVersion.c_str(); }
+        char const* GetCreatureEventAIVersion() const { return m_CreatureEventAIVersion.c_str(); }
 
 
         /**
@@ -585,7 +587,7 @@ class World
         * FullName: World::InvalidatePlayerDataToAllClient
         * Access: public
         **/
-        void InvalidatePlayerDataToAllClient(ObjectGuid guid);
+        void InvalidatePlayerDataToAllClient(ObjectGuid guid) const;
 
     protected:
         void _UpdateGameTime();
@@ -593,7 +595,11 @@ class World
         void _UpdateRealmCharCount(QueryResult* resultCharCount, uint32 accountId);
 
         void InitDailyQuestResetTime();
+        void InitWeeklyQuestResetTime();
+        void SetMonthlyQuestResetTime(bool initialize = true);
         void ResetDailyQuests();
+        void ResetWeeklyQuests();
+        void ResetMonthlyQuests();
 
     private:
         void setConfig(eConfigUInt32Values index, char const* fieldname, uint32 defvalue);
@@ -607,10 +613,10 @@ class World
         void setConfigMinMax(eConfigUInt32Values index, char const* fieldname, uint32 defvalue, uint32 minvalue, uint32 maxvalue);
         void setConfigMinMax(eConfigInt32Values index, char const* fieldname, int32 defvalue, int32 minvalue, int32 maxvalue);
         void setConfigMinMax(eConfigFloatValues index, char const* fieldname, float defvalue, float minvalue, float maxvalue);
-        bool configNoReload(bool reload, eConfigUInt32Values index, char const* fieldname, uint32 defvalue);
-        bool configNoReload(bool reload, eConfigInt32Values index, char const* fieldname, int32 defvalue);
-        bool configNoReload(bool reload, eConfigFloatValues index, char const* fieldname, float defvalue);
-        bool configNoReload(bool reload, eConfigBoolValues index, char const* fieldname, bool defvalue);
+        bool configNoReload(bool reload, eConfigUInt32Values index, char const* fieldname, uint32 defvalue) const;
+        bool configNoReload(bool reload, eConfigInt32Values index, char const* fieldname, int32 defvalue) const;
+        bool configNoReload(bool reload, eConfigFloatValues index, char const* fieldname, float defvalue) const;
+        bool configNoReload(bool reload, eConfigBoolValues index, char const* fieldname, bool defvalue) const;
 
         static volatile bool m_stopEvent;
         static uint8 m_ExitCode;
@@ -655,10 +661,12 @@ class World
 
         // CLI command holder to be thread safe
         std::mutex m_cliCommandQueueLock;
-        std::deque<CliCommandHolder *> m_cliCommandQueue;
+        std::deque<const CliCommandHolder *> m_cliCommandQueue;
 
         // next daily quests reset time
         time_t m_NextDailyQuestReset;
+        time_t m_NextWeeklyQuestReset;
+        time_t m_NextMonthlyQuestReset;
 
         // Player Queue
         Queue m_QueuedSessions;
@@ -674,7 +682,7 @@ class World
         std::string m_CreatureEventAIVersion;
 
         // List of Maps that should be force-loaded on startup
-        std::set<uint32>* m_configForceLoadMapIds;
+        std::set<uint32> m_configForceLoadMapIds;
 };
 
 extern uint32 realmID;

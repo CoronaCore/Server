@@ -20,7 +20,6 @@
 #define __BATTLEGROUNDMGR_H
 
 #include "Common.h"
-#include "Policies/Singleton.h"
 #include "Utilities/EventProcessor.h"
 #include "SharedDefines.h"
 #include "DBCEnums.h"
@@ -119,11 +118,11 @@ class BattleGroundQueue
         class SelectionPool
         {
             public:
+                SelectionPool() : PlayerCount(0) {}
                 void Init();
                 bool AddGroup(GroupQueueInfo* ginfo, uint32 desiredCount);
                 bool KickGroup(uint32 size);
                 uint32 GetPlayerCount() const {return PlayerCount;}
-            public:
                 GroupsQueueType SelectedGroups;
             private:
                 uint32 PlayerCount;
@@ -194,14 +193,14 @@ class BattleGroundMgr
         void Update(uint32 diff);
 
         /* Packet Building */
-        void BuildPlayerJoinedBattleGroundPacket(WorldPacket* data, Player* plr);
-        void BuildPlayerLeftBattleGroundPacket(WorldPacket* data, ObjectGuid guid);
-        void BuildBattleGroundListPacket(WorldPacket* data, ObjectGuid guid, Player* plr, BattleGroundTypeId bgTypeId);
-        void BuildGroupJoinedBattlegroundPacket(WorldPacket* data, BattleGroundTypeId bgTypeId);
-        void BuildUpdateWorldStatePacket(WorldPacket* data, uint32 field, uint32 value);
-        void BuildPvpLogDataPacket(WorldPacket* data, BattleGround* bg);
-        void BuildBattleGroundStatusPacket(WorldPacket* data, BattleGround* bg, uint8 QueueSlot, uint8 StatusID, uint32 Time1, uint32 Time2, ArenaType arenatype, Team arenaTeam);
-        void BuildPlaySoundPacket(WorldPacket* data, uint32 soundid);
+        void BuildPlayerJoinedBattleGroundPacket(WorldPacket& data, Player* plr) const;
+        void BuildPlayerLeftBattleGroundPacket(WorldPacket& data, ObjectGuid guid) const;
+        void BuildBattleGroundListPacket(WorldPacket& data, ObjectGuid guid, Player* plr, BattleGroundTypeId bgTypeId) const;
+        void BuildGroupJoinedBattlegroundPacket(WorldPacket& data, BattleGroundTypeId bgTypeId) const;
+        void BuildUpdateWorldStatePacket(WorldPacket& data, uint32 field, uint32 value) const;
+        void BuildPvpLogDataPacket(WorldPacket& data, BattleGround* bg) const;
+        void BuildBattleGroundStatusPacket(WorldPacket &data, BattleGround* bg, uint8 QueueSlot, uint8 StatusID, uint32 Time1, uint32 Time2, ArenaType arenatype, Team arenaTeam) const;
+        void BuildPlaySoundPacket(WorldPacket &data, uint32 soundid) const;
 
         /* Battlegrounds */
         BattleGround* GetBattleGroundThroughClientInstance(uint32 instanceId, BattleGroundTypeId bgTypeId);
@@ -237,7 +236,7 @@ class BattleGroundMgr
         uint32 GetPrematureFinishTime() const;
 
         void InitAutomaticArenaPointDistribution();
-        void DistributeArenaPoints();
+        void DistributeArenaPoints() const;
         void ToggleArenaTesting();
         void ToggleTesting();
 

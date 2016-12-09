@@ -23,9 +23,9 @@
 #include "Threading.h"
 #include "Database/SqlDelayThread.h"
 #include "Policies/ThreadingModel.h"
-#include <ace/TSS_T.h>
 #include "SqlPreparedStatement.h"
 
+#include <boost/thread/tss.hpp>
 #include <atomic>
 
 class SqlTransaction;
@@ -126,7 +126,7 @@ class MANGOS_DLL_SPEC Database
         QueryResult* PQuery(const char* format, ...) ATTR_PRINTF(2, 3);
         QueryNamedResult* PQueryNamed(const char* format, ...) ATTR_PRINTF(2, 3);
 
-        inline bool DirectExecute(const char* sql)
+        bool DirectExecute(const char* sql) const
         {
             if (!m_pAsyncConn)
                 return false;
@@ -196,7 +196,7 @@ class MANGOS_DLL_SPEC Database
         // get prepared statement format string
         std::string GetStmtString(const int stmtId) const;
 
-        operator bool () const { return m_pQueryConnections.size() && m_pAsyncConn != 0; }
+        operator bool () const { return m_pQueryConnections.size() && m_pAsyncConn; }
 
         // escape string generation
         void escape_string(std::string& str);
@@ -210,7 +210,7 @@ class MANGOS_DLL_SPEC Database
         void ProcessResultQueue();
 
         bool CheckRequiredField(char const* table_name, char const* required_name);
-        uint32 GetPingIntervall() { return m_pingIntervallms; }
+        uint32 GetPingIntervall() const { return m_pingIntervallms; }
 
         // function to ping database connections
         void Ping();
@@ -236,30 +236,8 @@ class MANGOS_DLL_SPEC Database
         // factory method to create SqlDelayThread objects
         virtual SqlDelayThread* CreateDelayThread();
 
-        class MANGOS_DLL_SPEC TransHelper
-        {
-            public:
-                TransHelper() : m_pTrans(nullptr) {}
-                ~TransHelper();
-
-                // initializes new SqlTransaction object
-                SqlTransaction* init();
-                // gets pointer on current transaction object. Returns nullptr if transaction was not initiated
-                SqlTransaction* get() const { return m_pTrans; }
-                // detaches SqlTransaction object allocated by init() function
-                // next call to get() function will return nullptr!
-                // do not forget to destroy obtained SqlTransaction object!
-                SqlTransaction* detach();
-                // destroyes SqlTransaction allocated by init() function
-                void reset();
-
-            private:
-                SqlTransaction* m_pTrans;
-        };
-
         // per-thread based storage for SqlTransaction object initialization - no locking is required
-        typedef ACE_TSS<Database::TransHelper> DBTransHelperTSS;
-        Database::DBTransHelperTSS m_TransStorage;
+        boost::thread_specific_ptr<SqlTransaction> m_currentTransaction;
 
         ///< DB connections
 

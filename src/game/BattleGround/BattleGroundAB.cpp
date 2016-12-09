@@ -20,16 +20,13 @@
 #include "Player.h"
 #include "BattleGround.h"
 #include "BattleGroundAB.h"
-#include "Creature.h"
 #include "GameObject.h"
 #include "BattleGroundMgr.h"
 #include "Language.h"
-#include "Util.h"
 #include "WorldPacket.h"
-#include "MapManager.h"
 #include "DBCStores.h"                                   // TODO REMOVE this when graveyard handling for pvp is updated
 
-BattleGroundAB::BattleGroundAB()
+BattleGroundAB::BattleGroundAB(): m_IsInformedNearVictory(false), m_honorTicks(0), m_ReputationTics(0)
 {
     m_StartMessageIds[BG_STARTING_EVENT_FIRST]  = 0;
     m_StartMessageIds[BG_STARTING_EVENT_SECOND] = LANG_BG_AB_START_ONE_MINUTE;
@@ -210,7 +207,7 @@ void BattleGroundAB::_CreateBanner(uint8 node, uint8 type, uint8 teamIndex, bool
     SpawnEvent(node, type, true);                           // will automaticly despawn other events
 }
 
-int32 BattleGroundAB::_GetNodeNameId(uint8 node)
+int32 BattleGroundAB::_GetNodeNameId(uint8 node) const
 {
     switch (node)
     {
@@ -315,7 +312,7 @@ void BattleGroundAB::EventPlayerClickedOnFlag(Player* source, GameObject* target
         return;
 
     source->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_ENTER_PVP_COMBAT);
-    uint32 sound = 0;
+    uint32 sound;
 
     // TODO in the following code we should restructure a bit to avoid
     // duplication (or maybe write functions?)

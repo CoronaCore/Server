@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: Areatrigger_Scripts
 SD%Complete: 100
-SDComment: Quest support: 4291, 6681, 7632, 10589/10604
+SDComment: Quest support: 4291, 6681, 7632, 10280, 10589/10604
 SDCategory: Areatrigger
 EndScriptData */
 
@@ -29,6 +29,7 @@ at_childrens_week_spot          3546,3547,3548,3552,3549,3550
 at_scent_larkorwi               1726,1727,1728,1729,1730,1731,1732,1733,1734,1735,1736,1737,1738,1739,1740
 at_murkdeep                     1966
 at_ancient_leaf                 3587
+at_haramad_teleport             4479
 EndContentData */
 
 #include "precompiled.h"
@@ -51,7 +52,7 @@ bool AreaTrigger_at_childrens_week_spot(Player* pPlayer, AreaTriggerEntry const*
         if (pAt->id == TriggerOrphanSpell[i][0] &&
                 pPlayer->GetMiniPet() && pPlayer->GetMiniPet()->GetEntry() == TriggerOrphanSpell[i][1])
         {
-            pPlayer->CastSpell(pPlayer, TriggerOrphanSpell[i][2], true);
+            pPlayer->CastSpell(pPlayer, TriggerOrphanSpell[i][2], TRIGGERED_OLD_TRIGGERED);
             return true;
         }
     }
@@ -96,13 +97,13 @@ bool AreaTrigger_at_legion_teleporter(Player* pPlayer, AreaTriggerEntry const* /
     {
         if (pPlayer->GetTeam() == ALLIANCE && pPlayer->GetQuestRewardStatus(QUEST_GAINING_ACCESS_A))
         {
-            pPlayer->CastSpell(pPlayer, SPELL_TELE_A_TO, false);
+            pPlayer->CastSpell(pPlayer, SPELL_TELE_A_TO, TRIGGERED_NONE);
             return true;
         }
 
         if (pPlayer->GetTeam() == HORDE && pPlayer->GetQuestRewardStatus(QUEST_GAINING_ACCESS_H))
         {
-            pPlayer->CastSpell(pPlayer, SPELL_TELE_H_TO, false);
+            pPlayer->CastSpell(pPlayer, SPELL_TELE_H_TO, TRIGGERED_NONE);
             return true;
         }
         return false;
@@ -237,6 +238,23 @@ bool AreaTrigger_at_ancient_leaf(Player* pPlayer, AreaTriggerEntry const* pAt)
     return false;
 }
 
+/*######
+## at_haramad_teleport
+######*/
+
+enum
+{
+    QUEST_SPECIAL_DELIVERY_TO_SHATTRATH = 10280
+};
+
+bool AreaTrigger_at_haramad_teleport(Player* pPlayer, AreaTriggerEntry const* /*pAt*/)
+{
+    if (pPlayer->IsCurrentQuest(QUEST_SPECIAL_DELIVERY_TO_SHATTRATH))
+        pPlayer->TeleportTo(530, -1810.465f, 5323.083f, -12.428f, 2.040f);
+
+    return false;
+}
+
 void AddSC_areatrigger_scripts()
 {
     Script* pNewScript;
@@ -274,5 +292,10 @@ void AddSC_areatrigger_scripts()
     pNewScript = new Script;
     pNewScript->Name = "at_ancient_leaf";
     pNewScript->pAreaTrigger = &AreaTrigger_at_ancient_leaf;
+    pNewScript->RegisterSelf();
+
+    pNewScript = new Script;
+    pNewScript->Name = "at_haramad_teleport";
+    pNewScript->pAreaTrigger = &AreaTrigger_at_haramad_teleport;
     pNewScript->RegisterSelf();
 }

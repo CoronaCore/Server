@@ -20,7 +20,6 @@
 #define _SCRIPTMGR_H
 
 #include "Common.h"
-#include "Policies/Singleton.h"
 #include "ObjectGuid.h"
 #include "DBCEnums.h"
 
@@ -59,6 +58,7 @@ enum ScriptCommand                                          // resSource, resTar
     SCRIPT_COMMAND_RESPAWN_GAMEOBJECT       = 9,            // source = any, datalong=db_guid, datalong2=despawn_delay
     SCRIPT_COMMAND_TEMP_SUMMON_CREATURE     = 10,           // source = any, datalong=creature entry, datalong2=despawn_delay
                                                             // data_flags & SCRIPT_FLAG_COMMAND_ADDITIONAL = summon active
+                                                            // dataint = (bool) setRun; 0 = off (default), 1 = on
     SCRIPT_COMMAND_OPEN_DOOR                = 11,           // datalong=db_guid (or not provided), datalong2=reset_delay
     SCRIPT_COMMAND_CLOSE_DOOR               = 12,           // datalong=db_guid (or not provided), datalong2=reset_delay
     SCRIPT_COMMAND_ACTIVATE_OBJECT          = 13,           // source = unit, target=GO
@@ -127,6 +127,9 @@ enum ScriptCommand                                          // resSource, resTar
                                                             // datalong = resetDefault: bool 0=false, 1=true
                                                             // dataint = main hand slot; dataint2 = off hand slot; dataint3 = ranged slot
     SCRIPT_COMMAND_RESET_GO                 = 43,           // resTarget = GameObject
+    SCRIPT_COMMAND_UPDATE_TEMPLATE          = 44,           // resSource = Creature
+                                                            // datalong = new Creature entry
+                                                            // datalong2 = Alliance(0) Horde(1), other values throw error
 };
 
 #define MAX_TEXT_ID 4                                       // used for SCRIPT_COMMAND_TALK, SCRIPT_COMMAND_EMOTE, SCRIPT_COMMAND_CAST_SPELL, SCRIPT_COMMAND_TERMINATE_SCRIPT
@@ -386,6 +389,12 @@ struct ScriptInfo
 
         // datalong unsed                                   // SCRIPT_COMMAND_RESET_GO (43)
 
+        struct                                              // SCRIPT_COMMAND_UPDATE_TEMPLATE (44)
+        {
+            uint32 newTemplate;                             // datalong
+            uint32 newFactionTeam;                          // datalong2
+        } updateTemplate;
+
         struct
         {
             uint32 data[2];
@@ -491,13 +500,13 @@ class ScriptAction
         ScriptInfo const* m_script;                         // pointer to static script data
 
         // Helper functions
-        bool GetScriptCommandObject(const ObjectGuid guid, bool includeItem, Object*& resultObject);
-        bool GetScriptProcessTargets(WorldObject* pOrigSource, WorldObject* pOrigTarget, WorldObject*& pFinalSource, WorldObject*& pFinalTarget);
-        bool LogIfNotCreature(WorldObject* pWorldObject);
-        bool LogIfNotUnit(WorldObject* pWorldObject);
-        bool LogIfNotGameObject(WorldObject* pWorldObject);
-        bool LogIfNotPlayer(WorldObject* pWorldObject);
-        Player* GetPlayerTargetOrSourceAndLog(WorldObject* pSource, WorldObject* pTarget);
+        bool GetScriptCommandObject(const ObjectGuid guid, bool includeItem, Object*& resultObject) const;
+        bool GetScriptProcessTargets(WorldObject* pOrigSource, WorldObject* pOrigTarget, WorldObject*& pFinalSource, WorldObject*& pFinalTarget) const;
+        bool LogIfNotCreature(WorldObject* pWorldObject) const;
+        bool LogIfNotUnit(WorldObject* pWorldObject) const;
+        bool LogIfNotGameObject(WorldObject* pWorldObject) const;
+        bool LogIfNotPlayer(WorldObject* pWorldObject) const;
+        Player* GetPlayerTargetOrSourceAndLog(WorldObject* pSource, WorldObject* pTarget) const;
 };
 
 typedef std::multimap < uint32 /*delay*/, ScriptInfo > ScriptMap;
@@ -573,8 +582,8 @@ class ScriptMgr
         bool OnQuestAccept(Player* pPlayer, Item* pItem, Quest const* pQuest);
         bool OnQuestRewarded(Player* pPlayer, Creature* pCreature, Quest const* pQuest);
         bool OnQuestRewarded(Player* pPlayer, GameObject* pGameObject, Quest const* pQuest);
-        uint32 GetDialogStatus(Player* pPlayer, Creature* pCreature);
-        uint32 GetDialogStatus(Player* pPlayer, GameObject* pGameObject);
+        uint32 GetDialogStatus(const Player* pPlayer, const Creature* pCreature) const;
+        uint32 GetDialogStatus(const Player* pPlayer, const GameObject* pGameObject) const;
         bool OnGameObjectUse(Player* pPlayer, GameObject* pGameObject);
         bool OnItemUse(Player* pPlayer, Item* pItem, SpellCastTargets const& targets);
         bool OnAreaTrigger(Player* pPlayer, AreaTriggerEntry const* atEntry);
@@ -588,7 +597,7 @@ class ScriptMgr
     private:
         void CollectPossibleEventIds(std::set<uint32>& eventIds);
         void LoadScripts(ScriptMapMapName& scripts, const char* tablename);
-        void CheckScriptTexts(ScriptMapMapName const& scripts, std::set<int32>& ids);
+        static void CheckScriptTexts(ScriptMapMapName const& scripts, std::set<int32>& ids);
 
         template<class T>
         void GetScriptHookPtr(T& ptr, const char* name)
@@ -626,8 +635,8 @@ class ScriptMgr
         bool (MANGOS_IMPORT* m_pOnItemQuestAccept)(Player*, Item*, Quest const*);
         bool (MANGOS_IMPORT* m_pOnQuestRewarded)(Player*, Creature*, Quest const*);
         bool (MANGOS_IMPORT* m_pOnGOQuestRewarded)(Player*, GameObject*, Quest const*);
-        uint32(MANGOS_IMPORT* m_pGetNPCDialogStatus)(Player*, Creature*);
-        uint32(MANGOS_IMPORT* m_pGetGODialogStatus)(Player*, GameObject*);
+        uint32(MANGOS_IMPORT* m_pGetNPCDialogStatus)(const Player*, const Creature*);
+        uint32(MANGOS_IMPORT* m_pGetGODialogStatus)(const Player*, const GameObject*);
         bool (MANGOS_IMPORT* m_pOnGOUse)(Player*, GameObject*);
         bool (MANGOS_IMPORT* m_pOnItemUse)(Player*, Item*, SpellCastTargets const&);
         bool (MANGOS_IMPORT* m_pOnAreaTrigger)(Player*, AreaTriggerEntry const*);

@@ -16,11 +16,9 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "GridMap.h"
 #include "Log.h"
 #include "World.h"
 #include "Creature.h"
-
 #include "MoveMap.h"
 #include "MoveMapSharedDefines.h"
 
@@ -180,7 +178,7 @@ namespace MMAP
         return true;
     }
 
-    uint32 MMapManager::packTileID(int32 x, int32 y)
+    uint32 MMapManager::packTileID(int32 x, int32 y) const
     {
         return uint32(x << 16 | y);
     }

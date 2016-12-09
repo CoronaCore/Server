@@ -27,9 +27,6 @@
 #include "DBCEnums.h"
 #include "SharedDefines.h"
 
-#include <map>
-#include <vector>
-
 class WorldSession;
 class Map;
 class BattleGround;
@@ -42,7 +39,7 @@ class Unit;
 #define MAX_RAID_SUBGROUPS (MAX_RAID_SIZE / MAX_GROUP_SIZE)
 #define TARGET_ICON_COUNT 8
 
-enum GroupMemberOnlineStatus
+enum GroupMemberStatus
 {
     MEMBER_STATUS_OFFLINE   = 0x0000,
     MEMBER_STATUS_ONLINE    = 0x0001,                       // Lua_UnitIsConnected
@@ -55,10 +52,19 @@ enum GroupMemberOnlineStatus
     MEMBER_STATUS_DND       = 0x0080,                       // Lua_UnitIsDND
 };
 
+GroupMemberStatus GetGroupMemberStatus(const Player* member);
+
 enum GroupType
 {
     GROUPTYPE_NORMAL = 0,
     GROUPTYPE_RAID   = 1
+};
+
+enum GroupFlagMask
+{
+    GROUP_ASSISTANT      = 0x01,
+    GROUP_MAIN_ASSISTANT = 0x02,
+    GROUP_MAIN_TANK      = 0x04,
 };
 
 enum GroupUpdateFlags
@@ -180,6 +186,7 @@ class MANGOS_DLL_SPEC Group
         GroupReference* GetFirstMember() { return m_memberMgr.getFirst(); }
         GroupReference const* GetFirstMember() const { return m_memberMgr.getFirst(); }
         uint32 GetMembersCount() const { return m_memberSlots.size(); }
+        uint32 GetMembersMinCount() const { return (isBGGroup() ? 1 : 2); }
         void GetDataForXPAtKill(Unit const* victim, uint32& count, uint32& sum_level, Player*& member_with_max_level, Player*& not_gray_member_with_max_level, Player* additional = nullptr);
         uint8 GetMemberGroup(ObjectGuid guid) const
         {
@@ -230,16 +237,17 @@ class MANGOS_DLL_SPEC Group
 
         void SetDifficulty(Difficulty difficulty);
         Difficulty GetDifficulty() const { return m_difficulty; }
-        uint16 InInstance();
         bool InCombatToInstance(uint32 instanceId);
         void ResetInstances(InstanceResetMethod method, Player* SendMsgTo);
 
-        void SendTargetIconList(WorldSession* session);
+        void SendTargetIconList(WorldSession* session) const;
         void SendUpdate();
         void UpdatePlayerOutOfRange(Player* pPlayer);
+        void UpdatePlayerOnlineStatus(Player* player, bool online = true);
+        void UpdateOfflineLeader(time_t time, uint32 delay);
         // ignore: GUID of player that will be ignored
-        void BroadcastPacket(WorldPacket* packet, bool ignorePlayersInBGRaid, int group = -1, ObjectGuid ignore = ObjectGuid());
-        void BroadcastReadyCheck(WorldPacket* packet);
+        void BroadcastPacket(WorldPacket const& packet, bool ignorePlayersInBGRaid, int group = -1, ObjectGuid ignore = ObjectGuid()) const;
+        void BroadcastReadyCheck(WorldPacket const& packet) const;
         void OfflineReadyCheck();
 
         void RewardGroupAtKill(Unit* pVictim, Player* player_tap);
@@ -255,7 +263,7 @@ class MANGOS_DLL_SPEC Group
         ObjectGuid const& GetCurrentLooterGuid() const { return m_currentLooterGuid; }
 
         void LinkMember(GroupReference* pRef) { m_memberMgr.insertFirst(pRef); }
-        void DelinkMember(GroupReference* /*pRef*/) { }
+        void DelinkMember(GroupReference* /*pRef*/) const { }
 
         InstanceGroupBind* BindToInstance(DungeonPersistentState* save, bool permanent, bool load = false);
         void UnbindInstance(uint32 mapid, uint8 difficulty, bool unload = false);
@@ -267,14 +275,16 @@ class MANGOS_DLL_SPEC Group
         bool _addMember(ObjectGuid guid, const char* name, bool isAssistant = false);
         bool _addMember(ObjectGuid guid, const char* name, bool isAssistant, uint8 group);
         bool _removeMember(ObjectGuid guid);                // returns true if leader has changed
+        void _chooseLeader(bool offline = false);
         void _setLeader(ObjectGuid guid);
+        void _updateLeaderFlag(bool remove = false) const;
 
         bool _setMembersGroup(ObjectGuid guid, uint8 group);
         bool _setAssistantFlag(ObjectGuid guid, const bool& state);
         bool _setMainTank(ObjectGuid guid);
         bool _setMainAssistant(ObjectGuid guid);
 
-        void _homebindIfInstance(Player* player);
+        void _homebindIfInstance(Player* player) const;
 
         void _initRaidSubGroupsCounter()
         {
@@ -318,12 +328,24 @@ class MANGOS_DLL_SPEC Group
                 --m_subGroupsCounts[subgroup];
         }
 
+        GroupFlagMask GetFlags(MemberSlot const& slot) const
+        {
+            uint8 flags = 0;
+            if (slot.assistant)
+                flags |= GROUP_ASSISTANT;
+            if (slot.guid == m_mainAssistantGuid)
+                flags |= GROUP_MAIN_ASSISTANT;
+            if (slot.guid == m_mainTankGuid)
+                flags |= GROUP_MAIN_TANK;
+            return GroupFlagMask(flags);
+        }
         uint32              m_Id;                           // 0 for not created or BG groups
         MemberSlotList      m_memberSlots;
         GroupRefManager     m_memberMgr;
         InvitesList         m_invitees;
         ObjectGuid          m_leaderGuid;
         std::string         m_leaderName;
+        time_t              m_leaderLastOnline;
         ObjectGuid          m_mainTankGuid;
         ObjectGuid          m_mainAssistantGuid;
         GroupType           m_groupType;

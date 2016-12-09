@@ -295,7 +295,7 @@ class BattleGround
         BattleGroundBracketId GetBracketId() const { return m_BracketId; }
         // the instanceId check is also used to determine a bg-template
         // that's why the m_map hack is here..
-        uint32 GetInstanceID()              { return m_Map ? GetBgMap()->GetInstanceId() : 0; }
+        uint32 GetInstanceID() const        { return m_Map ? GetBgMap()->GetInstanceId() : 0; }
         BattleGroundStatus GetStatus() const { return m_Status; }
         uint32 GetClientInstanceID() const  { return m_ClientInstanceID; }
         uint32 GetStartTime() const         { return m_StartTime; }
@@ -373,7 +373,7 @@ class BattleGround
 
         /* Map pointers */
         void SetBgMap(BattleGroundMap* map) { m_Map = map; }
-        BattleGroundMap* GetBgMap()
+        BattleGroundMap* GetBgMap() const
         {
             MANGOS_ASSERT(m_Map);
             return m_Map;
@@ -395,26 +395,26 @@ class BattleGround
         /* Packet Transfer */
         // method that should fill worldpacket with actual world states (not yet implemented for all battlegrounds!)
         virtual void FillInitialWorldStates(WorldPacket& /*data*/, uint32& /*count*/) {}
-        void SendPacketToTeam(Team team, WorldPacket* packet, Player* sender = nullptr, bool self = true);
-        void SendPacketToAll(WorldPacket* packet);
+        void SendPacketToTeam(Team team, WorldPacket const& packet, Player* sender = nullptr, bool self = true) const;
+        void SendPacketToAll(WorldPacket const& packet) const;
 
         template<class Do>
         void BroadcastWorker(Do& _do);
 
-        void PlaySoundToTeam(uint32 SoundID, Team team);
-        void PlaySoundToAll(uint32 SoundID);
+        void PlaySoundToTeam(uint32 SoundID, Team team) const;
+        void PlaySoundToAll(uint32 SoundID) const;
         void CastSpellOnTeam(uint32 SpellID, Team team);
         void RewardHonorToTeam(uint32 Honor, Team team);
         void RewardReputationToTeam(uint32 faction_id, uint32 Reputation, Team team);
         void RewardMark(Player* plr, uint32 count);
-        void SendRewardMarkByMail(Player* plr, uint32 mark, uint32 count);
+        void SendRewardMarkByMail(Player* plr, uint32 mark, uint32 count) const;
         void RewardItem(Player* plr, uint32 item_id, uint32 count);
         void RewardQuestComplete(Player* plr);
-        void RewardSpellCast(Player* plr, uint32 spell_id);
+        void RewardSpellCast(Player* plr, uint32 spell_id) const;
         void UpdateWorldState(uint32 Field, uint32 Value);
-        void UpdateWorldStateForPlayer(uint32 Field, uint32 Value, Player* Source);
+        void UpdateWorldStateForPlayer(uint32 Field, uint32 Value, Player* Source) const;
         virtual void EndBattleGround(Team winner);
-        void BlockMovement(Player* plr);
+    static void BlockMovement(Player* plr);
 
         void SendMessageToAll(int32 entry, ChatMsg type, Player const* source = nullptr);
         void SendYellToAll(int32 entry, uint32 language, ObjectGuid guid);
@@ -494,7 +494,7 @@ class BattleGround
         ObjectGuid GetSingleCreatureGuid(uint8 event1, uint8 event2);
 
         void OpenDoorEvent(uint8 event1, uint8 event2 = 0);
-        bool IsDoor(uint8 event1, uint8 event2);
+        bool IsDoor(uint8 event1, uint8 event2) const;
 
         void HandleTriggerBuff(ObjectGuid go_guid);
 

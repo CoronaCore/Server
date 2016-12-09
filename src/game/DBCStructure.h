@@ -19,7 +19,6 @@
 #ifndef MANGOS_DBCSTRUCTURE_H
 #define MANGOS_DBCSTRUCTURE_H
 
-#include "Common.h"
 #include "DBCEnums.h"
 #include "Path.h"
 #include "Platform/Define.h"
@@ -448,6 +447,11 @@ struct GtOCTRegenHPEntry
     float    ratio;
 };
 
+struct GtNPCManaCostScalerEntry
+{
+    float    ratio;
+};
+
 // struct GtOCTRegenMPEntry
 //{
 //    float    ratio;
@@ -729,21 +733,13 @@ struct ClassFamilyMask
     bool Empty() const { return Flags == 0; }
     bool operator!() const { return Empty(); }
     operator void const* () const { return Empty() ? nullptr : this; } // for allow normal use in if(mask)
+    bool operator== (const ClassFamilyMask &another) const { return (Flags == another.Flags); }
 
-    bool IsFitToFamilyMask(uint64 familyFlags) const
-    {
-        return Flags & familyFlags;
-    }
+    bool IsFitToFamilyMask(uint64 familyFlags) const { return !!(Flags & familyFlags); }
+    bool IsFitToFamilyMask(ClassFamilyMask const& mask) const { return !!(Flags & mask.Flags); }
 
-    bool IsFitToFamilyMask(ClassFamilyMask const& mask) const
-    {
-        return Flags & mask.Flags;
-    }
-
-    uint64 operator& (uint64 mask) const                    // possible will removed at finish convertion code use IsFitToFamilyMask
-    {
-        return Flags & mask;
-    }
+    // possible will removed at finish convertion code use IsFitToFamilyMask
+    uint64 operator& (uint64 mask) const { return !!(Flags & mask); }
 
     ClassFamilyMask& operator|= (ClassFamilyMask const& mask)
     {
@@ -881,13 +877,13 @@ struct SpellEntry
             return SpellFamily(SpellFamilyName) == family && IsFitToFamilyMask(mask);
         }
 
-        inline bool HasAttribute(SpellAttributes attribute) const { return Attributes & attribute; }
-        inline bool HasAttribute(SpellAttributesEx attribute) const { return AttributesEx & attribute; }
-        inline bool HasAttribute(SpellAttributesEx2 attribute) const { return AttributesEx2 & attribute; }
-        inline bool HasAttribute(SpellAttributesEx3 attribute) const { return AttributesEx3 & attribute; }
-        inline bool HasAttribute(SpellAttributesEx4 attribute) const { return AttributesEx4 & attribute; }
-        inline bool HasAttribute(SpellAttributesEx5 attribute) const { return AttributesEx5 & attribute; }
-        inline bool HasAttribute(SpellAttributesEx6 attribute) const { return AttributesEx6 & attribute; }
+        bool HasAttribute(SpellAttributes attribute) const { return !!(Attributes & attribute); }
+        bool HasAttribute(SpellAttributesEx attribute) const { return !!(AttributesEx & attribute); }
+        bool HasAttribute(SpellAttributesEx2 attribute) const { return !!(AttributesEx2 & attribute); }
+        bool HasAttribute(SpellAttributesEx3 attribute) const { return !!(AttributesEx3 & attribute); }
+        bool HasAttribute(SpellAttributesEx4 attribute) const { return !!(AttributesEx4 & attribute); }
+        bool HasAttribute(SpellAttributesEx5 attribute) const { return !!(AttributesEx5 & attribute); }
+        bool HasAttribute(SpellAttributesEx6 attribute) const { return !!(AttributesEx6 & attribute); }
 
     private:
         // prevent creating custom entries (copy data from original in fact)

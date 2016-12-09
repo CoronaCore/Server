@@ -141,7 +141,7 @@ void MapManager::LoadTransports()
     sLog.outString();
 }
 
-Transport::Transport() : GameObject()
+Transport::Transport() : GameObject(), m_pathTime(0), m_timer(0), m_nextNodeTime(0), m_period(0)
 {
     // 2.3.2 - 0x5A
     m_updateFlag = (UPDATEFLAG_TRANSPORT | UPDATEFLAG_LOWGUID | UPDATEFLAG_HIGHGUID | UPDATEFLAG_HAS_POSITION);
@@ -346,7 +346,7 @@ bool Transport::GenerateWaypoints(uint32 pathid, std::set<uint32>& mapids)
                     newY = keyFrames[i].node->y + (keyFrames[i + 1].node->y - keyFrames[i].node->y) * d / keyFrames[i + 1].distFromPrev;
                     newZ = keyFrames[i].node->z + (keyFrames[i + 1].node->z - keyFrames[i].node->z) * d / keyFrames[i + 1].distFromPrev;
 
-                    bool teleport = false;
+                    teleport = false;
                     if (keyFrames[i].node->mapid != cM)
                     {
                         teleport = true;
@@ -354,7 +354,7 @@ bool Transport::GenerateWaypoints(uint32 pathid, std::set<uint32>& mapids)
                     }
 
                     //                    sLog.outString("T: %d, D: %f, x: %f, y: %f, z: %f", t, d, newX, newY, newZ);
-                    WayPoint pos(keyFrames[i].node->mapid, newX, newY, newZ, teleport);
+                    pos = WayPoint(keyFrames[i].node->mapid, newX, newY, newZ, teleport);
                     if (teleport)
                         m_WayPoints[t] = pos;
                 }
@@ -393,14 +393,14 @@ bool Transport::GenerateWaypoints(uint32 pathid, std::set<uint32>& mapids)
         else
             t += (long)keyFrames[i + 1].tTo % 100;
 
-        bool teleport = false;
+        teleport = false;
         if ((keyFrames[i + 1].node->actionFlag == 1) || (keyFrames[i + 1].node->mapid != keyFrames[i].node->mapid))
         {
             teleport = true;
             cM = keyFrames[i + 1].node->mapid;
         }
 
-        WayPoint pos(keyFrames[i + 1].node->mapid, keyFrames[i + 1].node->x, keyFrames[i + 1].node->y, keyFrames[i + 1].node->z, teleport,
+        pos = WayPoint(keyFrames[i + 1].node->mapid, keyFrames[i + 1].node->x, keyFrames[i + 1].node->y, keyFrames[i + 1].node->z, teleport,
                      keyFrames[i + 1].node->arrivalEventID, keyFrames[i + 1].node->departureEventID);
 
         //        sLog.outString("T: %d, x: %f, y: %f, z: %f, t:%d", t, pos.x, pos.y, pos.z, teleport);
@@ -461,7 +461,7 @@ void Transport::TeleportTransport(uint32 newMapid, float x, float y, float z)
 
         // WorldPacket data(SMSG_811, 4);
         // data << uint32(0);
-        // plr->GetSession()->SendPacket(&data);
+        // plr->GetSession()->SendPacket(data);
     }
 
     // we need to create and save new Map object with 'newMapid' because if not done -> lead to invalid Map object reference...
@@ -551,8 +551,8 @@ void Transport::UpdateForMap(Map const* targetMap)
                 UpdateData transData;
                 BuildCreateUpdateBlockForPlayer(&transData, itr->getSource());
                 WorldPacket packet;
-                transData.BuildPacket(&packet, true);
-                itr->getSource()->SendDirectMessage(&packet);
+                transData.BuildPacket(packet, true);
+                itr->getSource()->SendDirectMessage(packet);
             }
         }
     }
@@ -561,11 +561,11 @@ void Transport::UpdateForMap(Map const* targetMap)
         UpdateData transData;
         BuildOutOfRangeUpdateBlock(&transData);
         WorldPacket out_packet;
-        transData.BuildPacket(&out_packet, true);
+        transData.BuildPacket(out_packet, true);
 
         for (Map::PlayerList::const_iterator itr = pl.begin(); itr != pl.end(); ++itr)
             if (this != itr->getSource()->GetTransport())
-                itr->getSource()->SendDirectMessage(&out_packet);
+                itr->getSource()->SendDirectMessage(out_packet);
     }
 }
 

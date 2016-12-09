@@ -23,7 +23,6 @@ EndScriptData */
 
 /* ContentData
 npc_draenei_survivor
-npc_injured_draenei
 npc_magwin
 EndContentData */
 
@@ -36,14 +35,16 @@ EndContentData */
 
 enum
 {
-    SAY_HEAL1           = -1000176,
-    SAY_HEAL2           = -1000177,
-    SAY_HEAL3           = -1000178,
-    SAY_HEAL4           = -1000179,
-    SAY_HELP1           = -1000180,
-    SAY_HELP2           = -1000181,
-    SAY_HELP3           = -1000182,
-    SAY_HELP4           = -1000183,
+    SAY_HEAL1           = -1001216,
+    SAY_HEAL2           = -1001217,
+    SAY_HEAL3           = -1001218,
+    SAY_HEAL4           = -1001219,
+    SAY_HEAL5           = -1001220,
+    SAY_HEAL6           = -1001221,
+    SAY_HELP1           = -1001222,
+    SAY_HELP2           = -1001223,
+    SAY_HELP3           = -1001224,
+    SAY_HELP4           = -1001225,
 
     SPELL_IRRIDATION    = 35046,
     SPELL_STUNNED       = 28630
@@ -71,7 +72,7 @@ struct npc_draenei_survivorAI : public ScriptedAI
 
         m_bCanSayHelp = true;
 
-        m_creature->CastSpell(m_creature, SPELL_IRRIDATION, true);
+        m_creature->CastSpell(m_creature, SPELL_IRRIDATION, TRIGGERED_OLD_TRIGGERED);
 
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP);
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
@@ -105,7 +106,7 @@ struct npc_draenei_survivorAI : public ScriptedAI
             m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP);
             m_creature->SetStandState(UNIT_STAND_STATE_STAND);
 
-            m_creature->CastSpell(m_creature, SPELL_STUNNED, true);
+            m_creature->CastSpell(m_creature, SPELL_STUNNED, TRIGGERED_OLD_TRIGGERED);
 
             m_casterGuid = pCaster->GetObjectGuid();
 
@@ -126,12 +127,15 @@ struct npc_draenei_survivorAI : public ScriptedAI
                     if (pPlayer->GetTypeId() != TYPEID_PLAYER)
                         return;
 
-                    switch (urand(0, 3))
+                    switch (urand(0, 6))
                     {
                         case 0: DoScriptText(SAY_HEAL1, m_creature, pPlayer); break;
                         case 1: DoScriptText(SAY_HEAL2, m_creature, pPlayer); break;
                         case 2: DoScriptText(SAY_HEAL3, m_creature, pPlayer); break;
                         case 3: DoScriptText(SAY_HEAL4, m_creature, pPlayer); break;
+                        case 4: DoScriptText(SAY_HEAL5, m_creature, pPlayer); break;
+                        case 5: DoScriptText(SAY_HEAL6, m_creature, pPlayer); break;
+                        case 6: break; // say nothing
                     }
 
                     pPlayer->TalkedToCreature(m_creature->GetEntry(), m_creature->GetObjectGuid());
@@ -173,35 +177,6 @@ CreatureAI* GetAI_npc_draenei_survivor(Creature* pCreature)
 }
 
 /*######
-## npc_injured_draenei
-######*/
-
-struct npc_injured_draeneiAI : public ScriptedAI
-{
-    npc_injured_draeneiAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
-
-    void Reset() override
-    {
-        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
-        m_creature->SetHealth(int(m_creature->GetMaxHealth()*.15));
-        switch (urand(0, 1))
-        {
-            case 0: m_creature->SetStandState(UNIT_STAND_STATE_SIT); break;
-            case 1: m_creature->SetStandState(UNIT_STAND_STATE_SLEEP); break;
-        }
-    }
-
-    void MoveInLineOfSight(Unit* /*pWho*/) override {}          // ignore everyone around them (won't aggro anything)
-
-    void UpdateAI(const uint32 /*uiDiff*/) override {}
-};
-
-CreatureAI* GetAI_npc_injured_draenei(Creature* pCreature)
-{
-    return new npc_injured_draeneiAI(pCreature);
-}
-
-/*######
 ## npc_magwin
 ######*/
 
@@ -213,6 +188,9 @@ enum
     SAY_END1                = -1000114,
     SAY_END2                = -1000115,
     EMOTE_HUG               = -1000116,
+    SAY_DAUGHTER            = -1000184,
+
+    NPC_COWLEN              = 17311,
 
     QUEST_A_CRY_FOR_HELP    = 9528
 };
@@ -221,49 +199,79 @@ struct npc_magwinAI : public npc_escortAI
 {
     npc_magwinAI(Creature* pCreature) : npc_escortAI(pCreature) { Reset(); }
 
-    void WaypointReached(uint32 uiPointId) override
+    void Reset() override
     {
-        Player* pPlayer = GetPlayerForEscort();
-
-        if (!pPlayer)
-            return;
-
-        switch (uiPointId)
-        {
-            case 0:
-                DoScriptText(SAY_START, m_creature, pPlayer);
-                break;
-            case 17:
-                DoScriptText(SAY_PROGRESS, m_creature, pPlayer);
-                break;
-            case 28:
-                DoScriptText(SAY_END1, m_creature, pPlayer);
-                break;
-            case 29:
-                DoScriptText(EMOTE_HUG, m_creature, pPlayer);
-                DoScriptText(SAY_END2, m_creature, pPlayer);
-                pPlayer->GroupEventHappens(QUEST_A_CRY_FOR_HELP, m_creature);
-                break;
-        }
+        if (!HasEscortState(STATE_ESCORT_ESCORTING))
+            m_creature->SetStandState(UNIT_STAND_STATE_KNEEL);
     }
 
     void Aggro(Unit* pWho) override
     {
-        DoScriptText(SAY_AGGRO, m_creature, pWho);
+        if (urand(0, 1))
+            DoScriptText(SAY_AGGRO, m_creature);
     }
 
-    void Reset() override { }
+    void WaypointReached(uint32 uiPointId) override
+    {
+        switch (uiPointId)
+        {
+            case 0:
+                m_creature->SetStandState(UNIT_STAND_STATE_STAND);
+                DoScriptText(SAY_START, m_creature);
+                break;
+            case 20:
+                DoScriptText(SAY_PROGRESS, m_creature);
+                break;
+            case 33:
+                SetRun();
+                DoScriptText(SAY_END1, m_creature);
+                if (Player* pPlayer = GetPlayerForEscort())
+                    pPlayer->GroupEventHappens(QUEST_A_CRY_FOR_HELP, m_creature);
+                if (Creature* pFather = GetClosestCreatureWithEntry(m_creature, NPC_COWLEN, 30.0f))
+                {
+                    pFather->SetStandState(UNIT_STAND_STATE_STAND);
+                    pFather->SetFacingToObject(m_creature);
+                }
+                break;
+            case 34:
+                if (Creature* pFather = GetClosestCreatureWithEntry(m_creature, NPC_COWLEN, 30.0f))
+                    DoScriptText(SAY_DAUGHTER, pFather);
+                break;
+            case 35:
+                DoScriptText(EMOTE_HUG, m_creature);
+                break;
+            case 36:
+                if (Player* pPlayer = GetPlayerForEscort())
+                    DoScriptText(SAY_END2, m_creature, pPlayer);
+                break;
+            case 37:
+                if (Creature* pFather = GetClosestCreatureWithEntry(m_creature, NPC_COWLEN, 30.0f))
+                {
+                    pFather->SetStandState(UNIT_STAND_STATE_SIT);
+                    pFather->GetMotionMaster()->MoveTargetedHome();
+                }
+                SetEscortPaused(true);
+                m_creature->ForcedDespawn(10000);
+                m_creature->GetMotionMaster()->MoveRandomAroundPoint(m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), 3.0f);
+                break;
+        }
+    }
+
+    void ReceiveAIEvent(AIEventType eventType, Creature* /*pSender*/, Unit* pInvoker, uint32 uiMiscValue) override
+    {
+        if (eventType == AI_EVENT_START_ESCORT && pInvoker->GetTypeId() == TYPEID_PLAYER)
+        {
+            m_creature->SetFactionTemporary(FACTION_ESCORT_A_NEUTRAL_PASSIVE, TEMPFACTION_RESTORE_RESPAWN);
+            Start(false, (Player*)pInvoker, GetQuestTemplateStore(uiMiscValue));
+        }
+    }
 };
 
 bool QuestAccept_npc_magwin(Player* pPlayer, Creature* pCreature, const Quest* pQuest)
 {
     if (pQuest->GetQuestId() == QUEST_A_CRY_FOR_HELP)
-    {
-        pCreature->SetFactionTemporary(FACTION_ESCORT_A_NEUTRAL_PASSIVE, TEMPFACTION_RESTORE_RESPAWN);
+        pCreature->AI()->SendAIEvent(AI_EVENT_START_ESCORT, pPlayer, pCreature, pQuest->GetQuestId());
 
-        if (npc_magwinAI* pEscortAI = dynamic_cast<npc_magwinAI*>(pCreature->AI()))
-            pEscortAI->Start(false, pPlayer, pQuest);
-    }
     return true;
 }
 
@@ -279,11 +287,6 @@ void AddSC_azuremyst_isle()
     pNewScript = new Script;
     pNewScript->Name = "npc_draenei_survivor";
     pNewScript->GetAI = &GetAI_npc_draenei_survivor;
-    pNewScript->RegisterSelf();
-
-    pNewScript = new Script;
-    pNewScript->Name = "npc_injured_draenei";
-    pNewScript->GetAI = &GetAI_npc_injured_draenei;
     pNewScript->RegisterSelf();
 
     pNewScript = new Script;

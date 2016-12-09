@@ -397,7 +397,7 @@ void PathFinder::BuildPointPath(const float* startPoint, const float* endPoint)
 {
     float pathPoints[MAX_POINT_PATH_LENGTH * VERTEX_SIZE];
     uint32 pointCount = 0;
-    dtStatus dtResult = DT_FAILURE;
+    dtStatus dtResult;
     if (m_useStraightPath)
     {
         dtResult = m_navMeshQuery->findStraightPath(
@@ -522,7 +522,7 @@ void PathFinder::updateFilter()
     }
 }
 
-NavTerrain PathFinder::getNavTerrain(float x, float y, float z)
+NavTerrain PathFinder::getNavTerrain(float x, float y, float z) const
 {
     GridMapLiquidData data;
     m_sourceUnit->GetTerrain()->getLiquidStatus(x, y, z, MAP_ALL_LIQUIDS, &data);
@@ -598,7 +598,7 @@ uint32 PathFinder::fixupCorridor(dtPolyRef* path, uint32 npath, uint32 maxPath,
 
 bool PathFinder::getSteerTarget(const float* startPos, const float* endPos,
                                 float minTargetDist, const dtPolyRef* path, uint32 pathSize,
-                                float* steerPos, unsigned char& steerPosFlag, dtPolyRef& steerPosRef)
+                                float* steerPos, unsigned char& steerPosFlag, dtPolyRef& steerPosRef) const
 {
     // Find steer target.
     static const uint32 MAX_STEER_POINTS = 3;
@@ -668,8 +668,8 @@ dtStatus PathFinder::findSmoothPath(const float* startPos, const float* endPos,
         if (!getSteerTarget(iterPos, targetPos, SMOOTH_PATH_SLOP, polys, npolys, steerPos, steerPosFlag, steerPosRef))
             break;
 
-        bool endOfPath = (steerPosFlag & DT_STRAIGHTPATH_END);
-        bool offMeshConnection = (steerPosFlag & DT_STRAIGHTPATH_OFFMESH_CONNECTION);
+        const bool endOfPath = !!(steerPosFlag & DT_STRAIGHTPATH_END);
+        const bool offMeshConnection = !!(steerPosFlag & DT_STRAIGHTPATH_OFFMESH_CONNECTION);
 
         // Find movement delta.
         float delta[VERTEX_SIZE];
@@ -728,17 +728,17 @@ dtStatus PathFinder::findSmoothPath(const float* startPos, const float* endPos,
             npolys -= npos;
 
             // Handle the connection.
-            float startPos[VERTEX_SIZE], endPos[VERTEX_SIZE];
-            dtResult = m_navMesh->getOffMeshConnectionPolyEndPoints(prevRef, polyRef, startPos, endPos);
+            float newStartPos[VERTEX_SIZE], newEndPos[VERTEX_SIZE];
+            dtResult = m_navMesh->getOffMeshConnectionPolyEndPoints(prevRef, polyRef, newStartPos, newEndPos);
             if (dtStatusSucceed(dtResult))
             {
                 if (nsmoothPath < maxSmoothPathSize)
                 {
-                    dtVcopy(&smoothPath[nsmoothPath * VERTEX_SIZE], startPos);
+                    dtVcopy(&smoothPath[nsmoothPath * VERTEX_SIZE], newStartPos);
                     ++nsmoothPath;
                 }
                 // Move position at the other side of the off-mesh link.
-                dtVcopy(iterPos, endPos);
+                dtVcopy(iterPos, newEndPos);
 
                 m_navMeshQuery->getPolyHeight(polys[0], iterPos, &iterPos[1]);
                 iterPos[1] += 0.5f;

@@ -36,12 +36,12 @@ class HostileRefManager : public RefManager<Unit, ThreatManager>
         explicit HostileRefManager(Unit* pOwner);
         ~HostileRefManager();
 
-        Unit* getOwner() { return iOwner; }
+        Unit* getOwner() const { return iOwner; }
 
         // send threat to all my hateres for the pVictim
         // The pVictim is hated than by them as well
         // use for buffs and healing threat functionality
-        void threatAssist(Unit* pVictim, float threat, SpellEntry const* threatSpell = 0, bool pSingleTarget = false);
+        void threatAssist(Unit* pVictim, float threat, SpellEntry const* threatSpell = nullptr, bool pSingleTarget = false);
 
         void addThreatPercent(int32 pValue);
 

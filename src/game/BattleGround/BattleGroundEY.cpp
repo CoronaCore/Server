@@ -25,10 +25,8 @@
 #include "BattleGroundMgr.h"
 #include "Language.h"
 #include "WorldPacket.h"
-#include "Util.h"
-#include "MapManager.h"
 
-BattleGroundEY::BattleGroundEY()
+BattleGroundEY::BattleGroundEY(): m_flagState(), m_towersAlliance(0), m_towersHorde(0), m_honorTicks(0), m_flagRespawnTimer(0), m_resourceUpdateTimer(0)
 {
     m_StartMessageIds[BG_STARTING_EVENT_FIRST]  = 0;
     m_StartMessageIds[BG_STARTING_EVENT_SECOND] = LANG_BG_EY_START_ONE_MINUTE;
@@ -389,8 +387,8 @@ void BattleGroundEY::EventPlayerDroppedFlag(Player* source)
 
     m_flagState = EY_FLAG_STATE_ON_GROUND;
     m_flagRespawnTimer = EY_FLAG_RESPAWN_TIME;
-    source->CastSpell(source, SPELL_RECENTLY_DROPPED_FLAG, true);
-    source->CastSpell(source, EY_PLAYER_DROPPED_FLAG_SPELL, true);
+    source->CastSpell(source, SPELL_RECENTLY_DROPPED_FLAG, TRIGGERED_OLD_TRIGGERED);
+    source->CastSpell(source, EY_PLAYER_DROPPED_FLAG_SPELL, TRIGGERED_OLD_TRIGGERED);
 
     if (source->GetTeam() == ALLIANCE)
     {
@@ -432,7 +430,7 @@ void BattleGroundEY::EventPlayerClickedOnFlag(Player* source, GameObject* target
 
     SetFlagCarrier(source->GetObjectGuid());
     // get flag aura on player
-    source->CastSpell(source, EY_NETHERSTORM_FLAG_SPELL, true);
+    source->CastSpell(source, EY_NETHERSTORM_FLAG_SPELL, TRIGGERED_OLD_TRIGGERED);
     source->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_ENTER_PVP_COMBAT);
 
     if (source->GetTeam() == ALLIANCE)
@@ -533,7 +531,7 @@ void BattleGroundEY::FillInitialWorldStates(WorldPacket& data, uint32& count)
 
 WorldSafeLocsEntry const* BattleGroundEY::GetClosestGraveYard(Player* player)
 {
-    uint32 g_id = 0;
+    uint32 g_id;
 
     switch (player->GetTeam())
     {

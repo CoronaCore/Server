@@ -24,6 +24,7 @@
 #include "Creature.h"
 #include "GameObject.h"
 #include "Player.h"
+#include "Language.h"
 
 OutdoorPvPNA::OutdoorPvPNA() : OutdoorPvP(),
     m_zoneOwner(TEAM_NONE),
@@ -71,7 +72,7 @@ void OutdoorPvPNA::HandlePlayerEnterZone(Player* player, bool isMainZone)
 
     // buff the player if same team is controlling the zone
     if (player->GetTeam() == m_zoneOwner)
-        player->CastSpell(player, SPELL_STRENGTH_HALAANI, true);
+        player->CastSpell(player, SPELL_STRENGTH_HALAANI, TRIGGERED_OLD_TRIGGERED);
 }
 
 void OutdoorPvPNA::HandlePlayerLeaveZone(Player* player, bool isMainZone)
@@ -105,7 +106,7 @@ void OutdoorPvPNA::HandlePlayerKillInsideArea(Player* player)
         {
             // check capture point team
             if (player->GetTeam() == m_zoneOwner)
-                player->CastSpell(player, player->GetTeam() == ALLIANCE ? SPELL_NAGRAND_TOKEN_ALLIANCE : SPELL_NAGRAND_TOKEN_HORDE, true);
+                player->CastSpell(player, player->GetTeam() == ALLIANCE ? SPELL_NAGRAND_TOKEN_ALLIANCE : SPELL_NAGRAND_TOKEN_HORDE, TRIGGERED_OLD_TRIGGERED);
 
             return;
         }

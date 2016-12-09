@@ -23,7 +23,7 @@ void FillSpellSummary();
 
 void LoadDatabase()
 {
-    std::string strSD2DBinfo = SD2Config.GetStringDefault("WorldDatabaseInfo", "");
+    std::string strSD2DBinfo = SD2Config.GetStringDefault("WorldDatabaseInfo");
 
     if (strSD2DBinfo.empty())
     {
@@ -113,10 +113,6 @@ void InitScriptLibrary()
 
    if (configFailure)
        script_error_log("Unable to open configuration file. Database will be unaccessible. Configuration values will use default.");
-
-   // Check config file version
-   if (SD2Config.GetIntDefault("ConfVersion", 0) != _MANGOSDCONFVERSION)
-       script_error_log("Configuration file version doesn't match expected version. Some config variables may be wrong or missing.");
 
    outstring_log("");
 
@@ -365,7 +361,7 @@ bool QuestRewarded(Player* pPlayer, Creature* pCreature, Quest const* pQuest)
 }
 
 MANGOS_DLL_EXPORT
-uint32 GetNPCDialogStatus(Player* pPlayer, Creature* pCreature)
+uint32 GetNPCDialogStatus(const Player* pPlayer, const Creature* pCreature)
 {
     Script* pTempScript = m_scripts[pCreature->GetScriptId()];
 
@@ -378,7 +374,7 @@ uint32 GetNPCDialogStatus(Player* pPlayer, Creature* pCreature)
 }
 
 MANGOS_DLL_EXPORT
-uint32 GetGODialogStatus(Player* pPlayer, GameObject* pGo)
+uint32 GetGODialogStatus(const Player* pPlayer, const GameObject* pGo)
 {
     Script* pTempScript = m_scripts[pGo->GetGOInfo()->ScriptId];
 

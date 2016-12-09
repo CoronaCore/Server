@@ -18,12 +18,9 @@
 
 #include "Corpse.h"
 #include "Player.h"
-#include "UpdateMask.h"
 #include "ObjectAccessor.h"
 #include "ObjectGuid.h"
 #include "Database/DatabaseEnv.h"
-#include "Opcodes.h"
-#include "GossipDef.h"
 #include "World.h"
 #include "ObjectMgr.h"
 
@@ -140,7 +137,7 @@ void Corpse::DeleteBonesFromWorld()
     AddObjectToRemoveList();
 }
 
-void Corpse::DeleteFromDB()
+void Corpse::DeleteFromDB() const
 {
     // bones should not be saved to DB (would be deleted on startup anyway)
     MANGOS_ASSERT(GetType() != CORPSE_BONES);

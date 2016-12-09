@@ -18,8 +18,6 @@
 
 #include "WorldSession.h"
 #include "Log.h"
-#include "Player.h"
-#include "WorldPacket.h"
 #include "ObjectMgr.h"
 #include "World.h"
 
@@ -314,7 +312,7 @@ void WorldSession::SendLfgResult(LfgType type, uint32 entry, LfgMode lfg_mode)
     data.put<uint32>(4 + 4,  number);
     data.put<uint32>(4 + 4 + 4, number);
 
-    SendPacket(&data);
+    SendPacket(data);
 }
 
 void WorldSession::HandleSetLfgOpcode(WorldPacket& recv_data)

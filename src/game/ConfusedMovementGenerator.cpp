@@ -17,12 +17,10 @@
  */
 
 #include "ConfusedMovementGenerator.h"
-#include "MapManager.h"
 #include "Creature.h"
 #include "Player.h"
 #include "movement/MoveSplineInit.h"
 #include "movement/MoveSpline.h"
-#include "PathFinder.h"
 
 template<class T>
 void ConfusedMovementGenerator<T>::Initialize(T& unit)
@@ -105,14 +103,14 @@ bool ConfusedMovementGenerator<T>::Update(T& unit, const uint32& diff)
 }
 
 template<>
-void ConfusedMovementGenerator<Player>::Finalize(Player& unit)
+void ConfusedMovementGenerator<Player>::Finalize(Player& unit) const
 {
     unit.clearUnitState(UNIT_STAT_CONFUSED | UNIT_STAT_CONFUSED_MOVE);
     unit.StopMoving(true);
 }
 
 template<>
-void ConfusedMovementGenerator<Creature>::Finalize(Creature& unit)
+void ConfusedMovementGenerator<Creature>::Finalize(Creature& unit) const
 {
     unit.clearUnitState(UNIT_STAT_CONFUSED | UNIT_STAT_CONFUSED_MOVE);
 }

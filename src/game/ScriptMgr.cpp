@@ -22,7 +22,6 @@
 #include "ProgressBar.h"
 #include "ObjectMgr.h"
 #include "WaypointManager.h"
-#include "World.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "Cell.h"
@@ -361,8 +360,7 @@ void ScriptMgr::LoadScripts(ScriptMapMapName& scripts, const char* tablename)
             }
             case SCRIPT_COMMAND_RESPAWN_GAMEOBJECT:         // 9
             {
-                uint32 goEntry = 0;
-
+                uint32 goEntry;
                 if (!tmp.GetGOGuid())
                 {
                     if (!tmp.buddyEntry)
@@ -417,8 +415,7 @@ void ScriptMgr::LoadScripts(ScriptMapMapName& scripts, const char* tablename)
             case SCRIPT_COMMAND_OPEN_DOOR:                  // 11
             case SCRIPT_COMMAND_CLOSE_DOOR:                 // 12
             {
-                uint32 goEntry = 0;
-
+                uint32 goEntry;
                 if (!tmp.GetGOGuid())
                 {
                     if (!tmp.buddyEntry)
@@ -733,6 +730,20 @@ void ScriptMgr::LoadScripts(ScriptMapMapName& scripts, const char* tablename)
             }
             case SCRIPT_COMMAND_RESET_GO:                   // 43
                 break;
+            case SCRIPT_COMMAND_UPDATE_TEMPLATE:            // 44
+            {
+                if (!sCreatureStorage.LookupEntry<CreatureInfo>(tmp.updateTemplate.newTemplate))
+                {
+                    sLog.outErrorDb("Table `%s` uses nonexistent creature entry %u in SCRIPT_COMMAND_UPDATE_TEMPLATE for script id %u.", tablename, tmp.updateTemplate.newTemplate, tmp.id);
+                    continue;
+                }
+                if (tmp.updateTemplate.newFactionTeam != 0 && tmp.updateTemplate.newFactionTeam != 1)
+                {
+                    sLog.outErrorDb("Table `%s` uses nonexistent faction team %u in SCRIPT_COMMAND_UPDATE_TEMPLATE for script id %u.", tablename, tmp.updateTemplate.newFactionTeam, tmp.id);
+                    continue;
+                }
+                break;
+            }
             default:
             {
                 sLog.outErrorDb("Table `%s` unknown command %u, skipping.", tablename, tmp.command);
@@ -931,7 +942,7 @@ void ScriptMgr::CheckScriptTexts(ScriptMapMapName const& scripts, std::set<int32
 
 /// Helper function to get Object source or target for Script-Command
 /// returns false iff an error happened
-bool ScriptAction::GetScriptCommandObject(const ObjectGuid guid, bool includeItem, Object*& resultObject)
+bool ScriptAction::GetScriptCommandObject(const ObjectGuid guid, bool includeItem, Object*& resultObject) const
 {
     resultObject = nullptr;
 
@@ -979,7 +990,7 @@ bool ScriptAction::GetScriptCommandObject(const ObjectGuid guid, bool includeIte
 
 /// Select source and target for a script command
 /// Returns false iff an error happened
-bool ScriptAction::GetScriptProcessTargets(WorldObject* pOrigSource, WorldObject* pOrigTarget, WorldObject*& pFinalSource, WorldObject*& pFinalTarget)
+bool ScriptAction::GetScriptProcessTargets(WorldObject* pOrigSource, WorldObject* pOrigTarget, WorldObject*& pFinalSource, WorldObject*& pFinalTarget) const
 {
     WorldObject* pBuddy = nullptr;
 
@@ -1093,7 +1104,7 @@ bool ScriptAction::GetScriptProcessTargets(WorldObject* pOrigSource, WorldObject
 }
 
 /// Helper to log error information
-bool ScriptAction::LogIfNotCreature(WorldObject* pWorldObject)
+bool ScriptAction::LogIfNotCreature(WorldObject* pWorldObject) const
 {
     if (!pWorldObject || pWorldObject->GetTypeId() != TYPEID_UNIT)
     {
@@ -1102,7 +1113,7 @@ bool ScriptAction::LogIfNotCreature(WorldObject* pWorldObject)
     }
     return false;
 }
-bool ScriptAction::LogIfNotUnit(WorldObject* pWorldObject)
+bool ScriptAction::LogIfNotUnit(WorldObject* pWorldObject) const
 {
     if (!pWorldObject || !pWorldObject->isType(TYPEMASK_UNIT))
     {
@@ -1111,7 +1122,7 @@ bool ScriptAction::LogIfNotUnit(WorldObject* pWorldObject)
     }
     return false;
 }
-bool ScriptAction::LogIfNotGameObject(WorldObject* pWorldObject)
+bool ScriptAction::LogIfNotGameObject(WorldObject* pWorldObject) const
 {
     if (!pWorldObject || pWorldObject->GetTypeId() != TYPEID_GAMEOBJECT)
     {
@@ -1120,7 +1131,7 @@ bool ScriptAction::LogIfNotGameObject(WorldObject* pWorldObject)
     }
     return false;
 }
-bool ScriptAction::LogIfNotPlayer(WorldObject* pWorldObject)
+bool ScriptAction::LogIfNotPlayer(WorldObject* pWorldObject) const
 {
     if (!pWorldObject || pWorldObject->GetTypeId() != TYPEID_PLAYER)
     {
@@ -1131,7 +1142,7 @@ bool ScriptAction::LogIfNotPlayer(WorldObject* pWorldObject)
 }
 
 /// Helper to get a player if possible (target preferred)
-Player* ScriptAction::GetPlayerTargetOrSourceAndLog(WorldObject* pSource, WorldObject* pTarget)
+Player* ScriptAction::GetPlayerTargetOrSourceAndLog(WorldObject* pSource, WorldObject* pTarget) const
 {
     if ((!pTarget || pTarget->GetTypeId() != TYPEID_PLAYER) && (!pSource || pSource->GetTypeId() != TYPEID_PLAYER))
     {
@@ -1370,9 +1381,7 @@ bool ScriptAction::HandleScriptStep()
         }
         case SCRIPT_COMMAND_RESPAWN_GAMEOBJECT:             // 9
         {
-            GameObject* pGo = nullptr;
-            uint32 time_to_despawn = m_script->respawnGo.despawnDelay < 5 ? 5 : m_script->respawnGo.despawnDelay;
-
+            GameObject* pGo;
             if (m_script->respawnGo.goGuid)
             {
                 GameObjectData const* goData = sObjectMgr.GetGOData(m_script->respawnGo.goGuid);
@@ -1406,6 +1415,8 @@ bool ScriptAction::HandleScriptStep()
             if (pGo->isSpawned())
                 break;                                      // gameobject already spawned
 
+            uint32 time_to_despawn = m_script->respawnGo.despawnDelay < 5 ? 5 : m_script->respawnGo.despawnDelay;
+
             pGo->SetLootState(GO_READY);
             pGo->SetRespawnTime(time_to_despawn);           // despawn object in ? seconds
             pGo->Refresh();
@@ -1424,7 +1435,7 @@ bool ScriptAction::HandleScriptStep()
             float z = m_script->z;
             float o = m_script->o;
 
-            Creature* pCreature = pSource->SummonCreature(m_script->summonCreature.creatureEntry, x, y, z, o, m_script->summonCreature.despawnDelay ? TEMPSUMMON_TIMED_OOC_OR_DEAD_DESPAWN : TEMPSUMMON_DEAD_DESPAWN, m_script->summonCreature.despawnDelay, (m_script->data_flags & SCRIPT_FLAG_COMMAND_ADDITIONAL) ? true : false);
+            Creature* pCreature = pSource->SummonCreature(m_script->summonCreature.creatureEntry, x, y, z, o, m_script->summonCreature.despawnDelay ? TEMPSUMMON_TIMED_OOC_OR_DEAD_DESPAWN : TEMPSUMMON_DEAD_DESPAWN, m_script->summonCreature.despawnDelay, (m_script->data_flags & SCRIPT_FLAG_COMMAND_ADDITIONAL) ? true : false, m_script->textId[0] == 1);
             if (!pCreature)
             {
                 sLog.outErrorDb(" DB-SCRIPTS: Process table `%s` id %u, command %u failed for creature (entry: %u).", m_table, m_script->id, m_script->command, m_script->summonCreature.creatureEntry);
@@ -1514,13 +1525,15 @@ bool ScriptAction::HandleScriptStep()
             // TODO: when GO cast implemented, code below must be updated accordingly to also allow GO spell cast
             if (pSource && pSource->GetTypeId() == TYPEID_GAMEOBJECT)
             {
-                ((Unit*)pTarget)->CastSpell(((Unit*)pTarget), spell, true, nullptr, nullptr, pSource->GetObjectGuid());
+                ((Unit*)pTarget)->CastSpell(((Unit*)pTarget), spell, TRIGGERED_OLD_TRIGGERED, nullptr, nullptr, pSource->GetObjectGuid());
                 break;
             }
 
             if (LogIfNotUnit(pSource))
                 break;
-            ((Unit*)pSource)->CastSpell(((Unit*)pTarget), spell, (m_script->data_flags & SCRIPT_FLAG_COMMAND_ADDITIONAL) != 0);
+
+            uint32 castFlags = (m_script->data_flags & SCRIPT_FLAG_COMMAND_ADDITIONAL ? TRIGGERED_OLD_TRIGGERED : TRIGGERED_NONE); // TODO: Figure out nice support for other flags using some column
+            ((Unit*)pSource)->CastSpell(((Unit*)pTarget), spell, castFlags);
 
             break;
         }
@@ -1621,7 +1634,7 @@ bool ScriptAction::HandleScriptStep()
             if (LogIfNotCreature(pSource))
                 break;
 
-            ((Creature*)pSource)->SetActiveObjectState(m_script->activeObject.activate);
+            ((Creature*)pSource)->SetActiveObjectState(!!m_script->activeObject.activate);
             break;
         }
         case SCRIPT_COMMAND_SET_FACTION:                    // 22
@@ -1974,7 +1987,7 @@ bool ScriptAction::HandleScriptStep()
                     pSource->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_FLY_ANIM);
             }
 
-            ((Creature*)pSource)->SetLevitate(m_script->fly.fly);
+            ((Creature*)pSource)->SetLevitate(!!m_script->fly.fly);
             break;
         }
         case SCRIPT_COMMAND_DESPAWN_GO:                     // 40
@@ -2036,6 +2049,19 @@ bool ScriptAction::HandleScriptStep()
                     sLog.outErrorDb(" DB-SCRIPTS: Process table `%s` id %u, command %u failed for gameobject(buddyEntry: %u). Gameobject is not a door or button", m_table, m_script->id, m_script->command, m_script->buddyEntry);
                     break;
             }
+            break;
+        }
+        case SCRIPT_COMMAND_UPDATE_TEMPLATE:                // 44
+        {
+            if (LogIfNotCreature(pSource))
+                return false;
+
+            Creature* pCSource = static_cast<Creature*>(pSource);
+
+            if (pCSource->GetEntry() != m_script->updateTemplate.newTemplate)
+                pCSource->UpdateEntry(m_script->updateTemplate.newTemplate, m_script->updateTemplate.newFactionTeam ? HORDE : ALLIANCE);
+            else
+                sLog.outErrorDb(" DB-SCRIPTS: Process table `%s` id %u, command %u failed. Source already has specified creature entry.", m_table, m_script->id, m_script->command);
             break;
         }
         default:
@@ -2328,7 +2354,7 @@ bool ScriptMgr::OnQuestRewarded(Player* pPlayer, GameObject* pGameObject, Quest 
     return m_pOnGOQuestRewarded != nullptr && m_pOnGOQuestRewarded(pPlayer, pGameObject, pQuest);
 }
 
-uint32 ScriptMgr::GetDialogStatus(Player* pPlayer, Creature* pCreature)
+uint32 ScriptMgr::GetDialogStatus(const Player* pPlayer, const Creature* pCreature) const
 {
     // used by eluna
     if (uint32 dialogId = sEluna->GetDialogStatus(pPlayer, pCreature))
@@ -2340,7 +2366,7 @@ uint32 ScriptMgr::GetDialogStatus(Player* pPlayer, Creature* pCreature)
     return m_pGetNPCDialogStatus(pPlayer, pCreature);
 }
 
-uint32 ScriptMgr::GetDialogStatus(Player* pPlayer, GameObject* pGameObject)
+uint32 ScriptMgr::GetDialogStatus(const Player* pPlayer, const GameObject* pGameObject) const
 {
     // used by eluna
     if (uint32 dialogId = sEluna->GetDialogStatus(pPlayer, pGameObject))

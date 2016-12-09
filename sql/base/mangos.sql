@@ -23,8 +23,8 @@ DROP TABLE IF EXISTS `db_version`;
 CREATE TABLE `db_version` (
   `version` varchar(120) DEFAULT NULL,
   `creature_ai_version` varchar(120) DEFAULT NULL,
-  `required_s2328_01_mangos_scriptdev2_tables` bit(1) DEFAULT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Used DB version notes';
+  `required_s2338_01_mangos_item_extraflags` bit(1) DEFAULT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Used DB version notes';
 
 --
 -- Dumping data for table `db_version`
@@ -46,7 +46,7 @@ CREATE TABLE `areatrigger_involvedrelation` (
   `id` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'Identifier',
   `quest` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'Quest Identifier',
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Trigger System';
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Trigger System';
 
 --
 -- Dumping data for table `areatrigger_involvedrelation`
@@ -66,7 +66,7 @@ CREATE TABLE `areatrigger_tavern` (
   `id` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'Identifier',
   `name` text,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Trigger System';
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Trigger System';
 
 --
 -- Dumping data for table `areatrigger_tavern`
@@ -97,8 +97,9 @@ CREATE TABLE `areatrigger_teleport` (
   `target_position_y` float NOT NULL DEFAULT '0',
   `target_position_z` float NOT NULL DEFAULT '0',
   `target_orientation` float NOT NULL DEFAULT '0',
+  `condition_id` INT(11) unsigned NOT NULL default '0',
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Trigger System';
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Trigger System';
 
 --
 -- Dumping data for table `areatrigger_teleport`
@@ -390,7 +391,7 @@ CREATE TABLE `command` (
   `security` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `help` longtext,
   PRIMARY KEY (`name`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Chat System';
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Chat System';
 
 --
 -- Dumping data for table `command`
@@ -721,7 +722,7 @@ CREATE TABLE `conditions` (
   `value2` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'data field two for the condition',
   PRIMARY KEY (`condition_entry`),
   UNIQUE KEY `unique_conditions` (`type`,`value1`,`value2`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Condition System';
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Condition System';
 
 --
 -- Dumping data for table `conditions`
@@ -825,7 +826,7 @@ CREATE TABLE `creature_ai_scripts` (
   `action3_param3` int(11) NOT NULL DEFAULT '0',
   `comment` varchar(255) NOT NULL DEFAULT '' COMMENT 'Event Comment',
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='EventAI Scripts';
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='EventAI Scripts';
 
 --
 -- Dumping data for table `creature_ai_scripts`
@@ -850,7 +851,7 @@ CREATE TABLE `creature_ai_summons` (
   `spawntimesecs` int(11) unsigned NOT NULL DEFAULT '120',
   `comment` varchar(255) NOT NULL DEFAULT '' COMMENT 'Summon Comment',
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='EventAI Summoning Locations';
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='EventAI Summoning Locations';
 
 --
 -- Dumping data for table `creature_ai_summons`
@@ -883,7 +884,7 @@ CREATE TABLE `creature_ai_texts` (
   `emote` smallint(5) unsigned NOT NULL DEFAULT '0',
   `comment` text,
   PRIMARY KEY (`entry`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Script Texts';
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Script Texts';
 
 --
 -- Dumping data for table `creature_ai_texts`
@@ -974,7 +975,7 @@ CREATE TABLE `creature_involvedrelation` (
   `id` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'Identifier',
   `quest` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'Quest Identifier',
   PRIMARY KEY (`id`,`quest`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Creature System';
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Creature System';
 
 --
 -- Dumping data for table `creature_involvedrelation`
@@ -995,7 +996,7 @@ CREATE TABLE `creature_linking` (
   `master_guid` int(10) unsigned NOT NULL COMMENT 'master to trigger events',
   `flag` mediumint(8) unsigned NOT NULL COMMENT 'flag - describing what should happen when',
   PRIMARY KEY (`guid`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Creature Linking System';
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Creature Linking System';
 
 --
 -- Dumping data for table `creature_linking`
@@ -1018,7 +1019,7 @@ CREATE TABLE `creature_linking_template` (
   `flag` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'flag - describing what should happen when',
   `search_range` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'search_range - describing in which range (spawn-coords) master and slave are linked together',
   PRIMARY KEY (`entry`,`map`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Creature Linking System';
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Creature Linking System';
 
 --
 -- Dumping data for table `creature_linking_template`
@@ -1043,7 +1044,7 @@ CREATE TABLE `creature_loot_template` (
   `maxcount` tinyint(3) unsigned NOT NULL DEFAULT '1',
   `condition_id` mediumint(8) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`entry`,`item`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Loot System';
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Loot System';
 
 --
 -- Dumping data for table `creature_loot_template`
@@ -1146,7 +1147,7 @@ CREATE TABLE `creature_movement` (
   `model1` mediumint(9) NOT NULL DEFAULT '0',
   `model2` mediumint(9) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`,`point`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Creature System';
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Creature System';
 
 --
 -- Dumping data for table `creature_movement`
@@ -1181,7 +1182,7 @@ CREATE TABLE `creature_movement_template` (
   `model1` mediumint(9) NOT NULL DEFAULT '0',
   `model2` mediumint(9) NOT NULL DEFAULT '0',
   PRIMARY KEY (`entry`,`point`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Creature waypoint system';
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Creature waypoint system';
 
 --
 -- Dumping data for table `creature_movement_template`
@@ -1229,7 +1230,7 @@ CREATE TABLE `creature_questrelation` (
   `id` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'Identifier',
   `quest` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'Quest Identifier',
   PRIMARY KEY (`id`,`quest`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Creature System';
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Creature System';
 
 --
 -- Dumping data for table `creature_questrelation`
@@ -1303,6 +1304,7 @@ CREATE TABLE `creature_template` (
   `KillCredit1` int(11) unsigned NOT NULL DEFAULT '0',
   `KillCredit2` int(11) unsigned NOT NULL DEFAULT '0',
   `MechanicImmuneMask` int(10) unsigned NOT NULL DEFAULT '0',
+  `SchoolImmuneMask` int(10) unsigned NOT NULL DEFAULT '0',
   `ResistanceHoly` smallint(5) NOT NULL DEFAULT '0',
   `ResistanceFire` smallint(5) NOT NULL DEFAULT '0',
   `ResistanceNature` smallint(5) NOT NULL DEFAULT '0',
@@ -1322,7 +1324,7 @@ CREATE TABLE `creature_template` (
   `AIName` char(64) NOT NULL DEFAULT '',
   `ScriptName` char(64) NOT NULL DEFAULT '',
   PRIMARY KEY (`entry`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Creature System';
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Creature System';
 
 --
 -- Dumping data for table `creature_template`
@@ -1331,7 +1333,7 @@ CREATE TABLE `creature_template` (
 LOCK TABLES `creature_template` WRITE;
 /*!40000 ALTER TABLE `creature_template` DISABLE KEYS */;
 INSERT INTO `creature_template` VALUES
-(1,'Waypoint (Only GM can see it)','Visual',NULL,1,1,0,10045,0,0,0,35,35,1,8,8,1,1,0,0,4096,0,130,5242886,0.91,1.14286,0,0,-1,1,1,1,1,1,1,8,8,0,0,7,7,1.76,2.42,0,3,100,2000,2200,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,'','');
+(1,'Waypoint (Only GM can see it)','Visual',NULL,1,1,0,10045,0,0,0,35,35,1,8,8,1,1,0,0,4096,0,130,5242886,0.91,1.14286,0,0,-1,1,1,1,1,1,1,8,8,0,0,7,7,1.76,2.42,0,3,100,2000,2200,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,'','');
 /*!40000 ALTER TABLE `creature_template` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1373,7 +1375,7 @@ CREATE TABLE `creature_template_spells` (
   `spell3` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `spell4` mediumint(8) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`entry`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Creature System (Spells used by creature)';
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Creature System (Spells used by creature)';
 
 --
 -- Dumping data for table `creature_template_spells`
@@ -1406,7 +1408,7 @@ CREATE TABLE `custom_texts` (
   `emote` smallint(5) unsigned NOT NULL DEFAULT '0',
   `comment` text,
   PRIMARY KEY (`entry`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Custom Texts';
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Custom Texts';
 
 --
 -- Dumping data for table `custom_texts`
@@ -1519,7 +1521,7 @@ CREATE TABLE `disenchant_loot_template` (
   `maxcount` tinyint(3) unsigned NOT NULL DEFAULT '1',
   `condition_id` mediumint(8) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`entry`,`item`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Loot System';
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Loot System';
 
 --
 -- Dumping data for table `disenchant_loot_template`
@@ -1539,7 +1541,7 @@ CREATE TABLE `exploration_basexp` (
   `level` tinyint(4) NOT NULL DEFAULT '0',
   `basexp` mediumint(9) NOT NULL DEFAULT '0',
   PRIMARY KEY (`level`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Exploration System';
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Exploration System';
 
 --
 -- Dumping data for table `exploration_basexp`
@@ -1636,7 +1638,7 @@ CREATE TABLE `fishing_loot_template` (
   `maxcount` tinyint(3) unsigned NOT NULL DEFAULT '1',
   `condition_id` mediumint(8) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`entry`,`item`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Loot System';
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Loot System';
 
 --
 -- Dumping data for table `fishing_loot_template`
@@ -1659,6 +1661,7 @@ CREATE TABLE `game_event` (
   `occurence` bigint(20) unsigned NOT NULL DEFAULT '86400' COMMENT 'Delay in minutes between occurences of the event',
   `length` bigint(20) unsigned NOT NULL DEFAULT '43200' COMMENT 'Length in minutes of the event',
   `holiday` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'Client side holiday id',
+  `linkedTo` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'This event starts only if defined LinkedTo event is started',
   `description` varchar(255) DEFAULT NULL COMMENT 'Description of the event displayed in console',
   PRIMARY KEY (`entry`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
@@ -1749,7 +1752,7 @@ CREATE TABLE `game_event_mail` (
   `mailTemplateId` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `senderEntry` mediumint(8) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`event`,`raceMask`,`quest`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Game event system';
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Game event system';
 
 --
 -- Dumping data for table `game_event_mail`
@@ -1846,7 +1849,7 @@ CREATE TABLE `game_weather` (
   `winter_snow_chance` tinyint(3) unsigned NOT NULL DEFAULT '25',
   `winter_storm_chance` tinyint(3) unsigned NOT NULL DEFAULT '25',
   PRIMARY KEY (`zone`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Weather System';
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Weather System';
 
 --
 -- Dumping data for table `game_weather`
@@ -1881,7 +1884,7 @@ CREATE TABLE `gameobject` (
   PRIMARY KEY (`guid`),
   KEY `idx_map` (`map`),
   KEY `idx_id` (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Gameobject System';
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Gameobject System';
 
 --
 -- Dumping data for table `gameobject`
@@ -1947,7 +1950,7 @@ CREATE TABLE `gameobject_loot_template` (
   `maxcount` tinyint(3) unsigned NOT NULL DEFAULT '1',
   `condition_id` mediumint(8) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`entry`,`item`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Loot System';
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Loot System';
 
 --
 -- Dumping data for table `gameobject_loot_template`
@@ -2021,7 +2024,7 @@ CREATE TABLE `gameobject_template` (
   `maxgold` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `ScriptName` varchar(64) NOT NULL DEFAULT '',
   PRIMARY KEY (`entry`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Gameobject System';
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Gameobject System';
 
 --
 -- Dumping data for table `gameobject_template`
@@ -2120,7 +2123,7 @@ CREATE TABLE `gossip_texts` (
   `content_loc8` text,
   `comment` text,
   PRIMARY KEY (`entry`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Gossip Texts';
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Gossip Texts';
 
 --
 -- Dumping data for table `gossip_texts`
@@ -2192,7 +2195,7 @@ CREATE TABLE `item_enchantment_template` (
   `ench` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `chance` float unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`entry`,`ench`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Item Random Enchantment System';
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Item Random Enchantment System';
 
 --
 -- Dumping data for table `item_enchantment_template`
@@ -2217,7 +2220,7 @@ CREATE TABLE `item_loot_template` (
   `maxcount` tinyint(3) unsigned NOT NULL DEFAULT '1',
   `condition_id` mediumint(8) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`entry`,`item`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Loot System';
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Loot System';
 
 --
 -- Dumping data for table `item_loot_template`
@@ -2238,7 +2241,7 @@ CREATE TABLE `item_required_target` (
   `type` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `targetEntry` mediumint(8) unsigned NOT NULL DEFAULT '0',
   UNIQUE KEY `entry_type_target` (`entry`,`type`,`targetEntry`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 
 --
 -- Dumping data for table `item_required_target`
@@ -2398,7 +2401,7 @@ CREATE TABLE `item_template` (
   `ExtraFlags` tinyint(1) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`entry`),
   KEY `items_index` (`class`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Item System';
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Item System';
 
 --
 -- Dumping data for table `item_template`
@@ -2935,7 +2938,7 @@ CREATE TABLE `mail_level_reward` (
   `mailTemplateId` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `senderEntry` mediumint(8) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`level`,`raceMask`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Mail System';
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Mail System';
 
 --
 -- Dumping data for table `mail_level_reward`
@@ -2960,7 +2963,7 @@ CREATE TABLE `mail_loot_template` (
   `maxcount` tinyint(3) unsigned NOT NULL DEFAULT '1',
   `condition_id` mediumint(8) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`entry`,`item`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Loot System';
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Loot System';
 
 --
 -- Dumping data for table `mail_loot_template`
@@ -3975,6 +3978,7 @@ CREATE TABLE `npc_trainer` (
   `reqskill` smallint(5) unsigned NOT NULL DEFAULT '0',
   `reqskillvalue` smallint(5) unsigned NOT NULL DEFAULT '0',
   `reqlevel` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `condition_id` INT(11) unsigned NOT NULL default '0',
   UNIQUE KEY `entry_spell` (`entry`,`spell`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
@@ -3999,6 +4003,7 @@ CREATE TABLE `npc_trainer_template` (
   `reqskill` smallint(5) unsigned NOT NULL DEFAULT '0',
   `reqskillvalue` smallint(5) unsigned NOT NULL DEFAULT '0',
   `reqlevel` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `condition_id` INT(11) unsigned NOT NULL default '0',
   UNIQUE KEY `entry_spell` (`entry`,`spell`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
@@ -4024,7 +4029,7 @@ CREATE TABLE `npc_vendor` (
   `ExtendedCost` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `condition_id` mediumint(8) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`entry`,`item`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Npc System';
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Npc System';
 
 --
 -- Dumping data for table `npc_vendor`
@@ -4048,7 +4053,7 @@ CREATE TABLE `npc_vendor_template` (
   `ExtendedCost` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `condition_id` mediumint(8) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`entry`,`item`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Npc System';
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Npc System';
 
 --
 -- Dumping data for table `npc_vendor_template`
@@ -4069,7 +4074,7 @@ CREATE TABLE `page_text` (
   `text` longtext NOT NULL,
   `next_page` mediumint(8) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`entry`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Item System';
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Item System';
 
 --
 -- Dumping data for table `page_text`
@@ -4428,7 +4433,7 @@ CREATE TABLE `pickpocketing_loot_template` (
   `maxcount` tinyint(3) unsigned NOT NULL DEFAULT '1',
   `condition_id` mediumint(8) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`entry`,`item`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Loot System';
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Loot System';
 
 --
 -- Dumping data for table `pickpocketing_loot_template`
@@ -11409,7 +11414,7 @@ CREATE TABLE `prospecting_loot_template` (
   `maxcount` tinyint(3) unsigned NOT NULL DEFAULT '1',
   `condition_id` mediumint(8) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`entry`,`item`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Loot System';
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Loot System';
 
 --
 -- Dumping data for table `prospecting_loot_template`
@@ -11436,6 +11441,7 @@ CREATE TABLE `quest_template` (
   `RequiredRaces` smallint(5) unsigned NOT NULL DEFAULT '0',
   `RequiredSkill` smallint(5) unsigned NOT NULL DEFAULT '0',
   `RequiredSkillValue` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `RequiredCondition` INT(11) UNSIGNED NOT NULL DEFAULT '0',
   `RepObjectiveFaction` smallint(5) unsigned NOT NULL DEFAULT '0',
   `RepObjectiveValue` mediumint(9) NOT NULL DEFAULT '0',
   `RequiredMinRepFaction` smallint(5) unsigned NOT NULL DEFAULT '0',
@@ -11579,7 +11585,7 @@ CREATE TABLE `reference_loot_template` (
   `maxcount` tinyint(3) unsigned NOT NULL DEFAULT '1',
   `condition_id` mediumint(8) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`entry`,`item`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Loot System';
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Loot System';
 
 --
 -- Dumping data for table `reference_loot_template`
@@ -11684,7 +11690,7 @@ CREATE TABLE `script_texts` (
   `emote` smallint(5) unsigned NOT NULL DEFAULT '0',
   `comment` text,
   PRIMARY KEY  (`entry`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Script Texts';
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Script Texts';
 
 --
 -- Dumping data for table `script_texts`
@@ -11709,7 +11715,7 @@ CREATE TABLE script_waypoint (
   waittime int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'waittime in millisecs',
   point_comment text,
   PRIMARY KEY (entry, pointid)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Script Creature waypoints';
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Script Creature waypoints';
 
 --
 -- Dumping data for table `script_waypoint`
@@ -11770,7 +11776,7 @@ CREATE TABLE `skill_discovery_template` (
   `reqSpell` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'spell requirement',
   `chance` float NOT NULL DEFAULT '0' COMMENT 'chance to discover',
   PRIMARY KEY (`spellId`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Skill Discovery System';
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Skill Discovery System';
 
 --
 -- Dumping data for table `skill_discovery_template`
@@ -11792,7 +11798,7 @@ CREATE TABLE `skill_extra_item_template` (
   `additionalCreateChance` float NOT NULL DEFAULT '0' COMMENT 'chance to create add',
   `additionalMaxNum` tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT 'max num of adds',
   PRIMARY KEY (`spellId`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Skill Specialization System';
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Skill Specialization System';
 
 --
 -- Dumping data for table `skill_extra_item_template`
@@ -11812,7 +11818,7 @@ CREATE TABLE `skill_fishing_base_level` (
   `entry` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'Area identifier',
   `skill` smallint(6) NOT NULL DEFAULT '0' COMMENT 'Base skill level requirement',
   PRIMARY KEY (`entry`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Fishing system';
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Fishing system';
 
 --
 -- Dumping data for table `skill_fishing_base_level`
@@ -11837,7 +11843,7 @@ CREATE TABLE `skinning_loot_template` (
   `maxcount` tinyint(3) unsigned NOT NULL DEFAULT '1',
   `condition_id` mediumint(8) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`entry`,`item`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Loot System';
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Loot System';
 
 --
 -- Dumping data for table `skinning_loot_template`
@@ -13125,129 +13131,97 @@ INSERT INTO `spell_bonus_data` VALUES
 (339,   0,      0.1,     0,     0,     'Druid - Entangling Roots'),
 (5185,  1,      0,       0,     0,     'Druid - Healing Touch'),
 (42231, 0.12898,0,       0,     0,     'Druid - Hurricane Triggered'),
-(5570,  0,      0.127,   0,     0,     'Druid - Insect Swarm'),
+(5570,  0,      0.1667,  0,     0,     'Druid - Insect Swarm'),
 (33745, 0,      0,       0.01,  0.01,  'Druid - Lacerate'),
-(33763, 0.3429, 0.0742,  0,     0,     'Druid - Lifebloom'),
-(8921,  0.1515, 0.13,    0,     0,     'Druid - Moonfire'),
+(33763, 0.3428, 0.0742,  0,     0,     'Druid - Lifebloom'),
+(8921,  0.1491, 0.13,    0,     0,     'Druid - Moonfire'),
 (9007,  0,      0,       0,     0.03,  'Druid - Pounce Bleed'),
-(8936,  0.3,    0.1,     0,     0,     'Druid - Regrowth'),
-(774,   0,      0.16,    0,     0,     'Druid - Rejuvenation'),
+(8936,  0.2898, 0.1,     0,     0,     'Druid - Regrowth'),
+(774,   0,      0.2,     0,     0,     'Druid - Rejuvenation'),
 (1822,  0,      0,       0,     0.02,  'Druid - Rake'),
 (18562, 0,      0,       0,     0,     'Druid - Swiftmend'),
 (44203, 0.1825, 0,       0,     0,     'Druid - Tranquility Triggered'),
 (5176,  0.5714, 0,       0,     0,     'Druid - Wrath'),
 /* Hunter */
-(3044,  0,      0,       0.15,  0,     'Hunter - Arcane Shot'),
+(3044,  0.4286, 0,       0.15,  0,     'Hunter - Arcane Shot'),
 (13812, 0,      0,       0.1,   0.1,   'Hunter - Explosive Trap'),
 (13797, 0,      0,       0,     0.02,  'Hunter - Immolation Trap'),
 (1495,  0,      0,       0.2,   0,     'Hunter - Mongoose Bite'),
-(1978,  0,      0,       0,     0.02,  'Hunter - Serpent Sting'),
+(19503, 0,      0,       0,     0,     'Hunter - Scatter Shot'),
+(34490, 0,      0,       0,     0,     'Hunter - Silencing Shot'),
+(34120, 0,      0,       0.2,   0,     'Hunter - Steady Shot'),
+(1978,  0,      0.2,     0,     0.02,  'Hunter - Serpent Sting'),
+(42243, 0.125,  0,       0,     0,     'Hunter - Volley Triggered'),
 /* Mage */
-(7268,  0.2857, 0,       0,     0,     'Mage - Arcane Missiles Triggered Spell Rank 1'),
-(7269,  0.2857, 0,       0,     0,     'Mage - Arcane Missiles Triggered Spell Rank 2'),
-(7270,  0.2857, 0,       0,     0,     'Mage - Arcane Missiles Triggered Spell Rank 3'),
-(8419,  0.2857, 0,       0,     0,     'Mage - Arcane Missiles Triggered Spell Rank 4'),
-(8418,  0.2857, 0,       0,     0,     'Mage - Arcane Missiles Triggered Spell Rank 5'),
-(10273, 0.2857, 0,       0,     0,     'Mage - Arcane Missiles Triggered Spell Rank 6'),
-(10274, 0.2857, 0,       0,     0,     'Mage - Arcane Missiles Triggered Spell Rank 7'),
-(25346, 0.2857, 0,       0,     0,     'Mage - Arcane Missiles Triggered Spell Rank 8'),
-(27076, 0.2857, 0,       0,     0,     'Mage - Arcane Missiles Triggered Spell Rank 9'),
-(38700, 0.2857, 0,       0,     0,     'Mage - Arcane Missiles Triggered Spell Rank 10'),
-(38703, 0.2857, 0,       0,     0,     'Mage - Arcane Missiles Triggered Spell Rank 11'),
-(11113, 0.1357, 0,       0,     0,     'Mage - Blast Wave Rank'),
-(42208, 0.0952, 0,       0,     0,     'Mage - Blizzard Triggered Spell Rank 1'),
-(42209, 0.0952, 0,       0,     0,     'Mage - Blizzard Triggered Spell Rank 2'),
-(42210, 0.0952, 0,       0,     0,     'Mage - Blizzard Triggered Spell Rank 3'),
-(42211, 0.0952, 0,       0,     0,     'Mage - Blizzard Triggered Spell Rank 4'),
-(42212, 0.0952, 0,       0,     0,     'Mage - Blizzard Triggered Spell Rank 5'),
-(42213, 0.0952, 0,       0,     0,     'Mage - Blizzard Triggered Spell Rank 6'),
-(42198, 0.0952, 0,       0,     0,     'Mage - Blizzard Triggered Spell Rank 7'),
-(120,   0.1357, 0,       0,     0,     'Mage - Cone of Cold'),
-(31661, 0.1357, 0,       0,     0,     'Mage - Dragons Breath'),
+(7268,  0.2857, 0,       0,     0,     'Mage - Arcane Missiles Triggered'),
+(42208, 0.1435, 0,       0,     0,     'Mage - Blizzard Triggered'),
 (133,   1,      0,       0,     0,     'Mage - Fire Ball'),
-(2120,  0.2357, 0.122,   0,     0,     'Mage - Flamestrike'),
+(543,   0.3,    0,       0,     0,     'Mage - Fire Ward'),
+(2120,  0.2361, 0.0274,  0,     0,     'Mage - Flamestrike'),
 (116,   0.8143, 0,       0,     0,     'Mage - Frost Bolt'),
+(122,   0.0279, 0,       0,     0,     'Mage - Frost Nova'),
+(6143,  0.3,    0,       0,     0,     'Mage - Frost Ward'),
+(11426, 0.1,    0,       0,     0,     'Mage - Ice Barrier'),
 (30455, 0.1429, 0,       0,     0,     'Mage - Ice Lance'),
-(44459, 0.4,    0,       0,     0,     'Mage - Living Bomb'),
-(44461, 0.4,    0,       0,     0,     'Mage - Living Bomb'),
-(1463,  0.8053, 0,       0,     0,     'Mage - Mana Shield'),
+(12654, 0,      0,       0,     0,     'Mage - Ignite'),
+(1463,  0.5,    0,       0,     0,     'Mage - Mana Shield'),
 (34913, 0,      0,       0,     0,     'Mage - Molten Armor Triggered'),
 /* Paladin */
-(31935, 0.07,   0,       0.07,  0,     'Paladin - Avengers Shiled'),
-(26573, 0,      0.04,    0,     0.04,  'Paladin - Consecration'),
-(879,   0.15,   0,       0.15,  0,     'Paladin - Exorcism'),
-(24275, 0.15,   0,       0.15,  0,     'Paladin - Hammer of Wrath'),
-(20925, 0.09,   0,       0.056, 0,     'Paladin - Holy Shield'),
-(31803, 0,      0.013,   0,     0.15,  'Paladin - Holy Vengeance'),
-(2812,  0.07,   0,       0.07,  0,     'Paladin - Holy Wrath'),
-(31893, 0.25,   0,       0.16,  0,     'Paladin - Seal of Blood Enemy Proc'),
-(32221, 0.25,   0,       0.16,  0,     'Paladin - Seal of Blood Self Proc'),
-(20424, 0.25,   0,       0.16,  0,     'Paladin - Seal of Command Proc'),
-(20167, 0.25,   0,       0.16,  0,     'Paladin - Seal of Light Proc'),
-(25742, 0.07,   0,       0.039, 0,     'Paladin - Seal of Righteousness Dummy Proc'),
+(31935, 0.19,   0,       0,     0,     'Paladin - Avengers Shield'),
+(20911, 0,      0,       0,     0,     'Paladin - Blessing of Sanctuary'),
+(26573, 0,      0.1191,  0,     0,     'Paladin - Consecration'),
+(25899, 0,      0,       0,     0,     'Paladin - Greater Blessing of Sanctuary'),
+(20925, 0.05,   0,       0,     0,     'Paladin - Holy Shield'),
+(2812,  0.1905, 0,       0,     0,     'Paladin - Holy Wrath'),
+(32220, 0,      0,       0,     0,     'Paladin - Judgement of Blood Proc on Self'),
+(20187, 0.7143, 0,       0,     0,     'Paladin - Judgement of Righteousness'),
+(31893, 0,      0,       0,     0,     'Paladin - Seal of Blood Proc on Enemy'),
+(32221, 0,      0,       0,     0,     'Paladin - Seal of Blood Proc on Self'),
+(20424, 0.2,    0,       0,     0,     'Paladin - Seal of Command Proc'),
+(25742, 0.1,    0,       0,     0,     'Paladin - Seal of Righteousness Proc'),
+(31803, 0,      0.034,   0,     0,     'Paladin - Seal of Vengeance Proc on Enemy'),
+(42463, 0.022,  0,       0,     0,     'Paladin - Seal of Vengeance Proc on Enemy (fully stacked)'),
 /* Priest */
-(14914, 0.5711, 0.024,   0,     0,     'Priest - Holy Fire'),
+(44041, 0.143,  0,       0,     0,     'Priest - Chastise'),
+(2944,  0,      0.2,     0,     0,     'Priest - Devouring Plague'),
+(32897, 0,      0,       0,     0,     'Priest - Feedback'),
+(14914, 0.75,   0.05,    0,     0,     'Priest - Holy Fire'),
 (15237, 0.1606, 0,       0,     0,     'Priest - Holy Nova Damage'),
-(23455, 0.1606, 0,       0,     0,     'Priest - Holy Nova Heal Rank 1'),
-(23458, 0.1606, 0,       0,     0,     'Priest - Holy Nova Heal Rank 2'),
-(23459, 0.1606, 0,       0,     0,     'Priest - Holy Nova Heal Rank 3'),
-(27803, 0.1606, 0,       0,     0,     'Priest - Holy Nova Heal Rank 4'),
-(27804, 0.1606, 0,       0,     0,     'Priest - Holy Nova Heal Rank 5'),
-(27805, 0.1606, 0,       0,     0,     'Priest - Holy Nova Heal Rank 6'),
-(25329, 0.1606, 0,       0,     0,     'Priest - Holy Nova Heal Rank 7'),
+(23455, 0.1606, 0,       0,     0,     'Priest - Holy Nova Heal'),
+(7001,  0,      0.33,    0,     0,     'Priest - Lightwell Renew'),
 (8129,  0,      0,       0,     0,     'Priest - Mana Burn'),
 (15407, 0,      0.19,    0,     0,     'Priest - Mind Flay'),
+(17,    0.3,    0,       0,     0,     'Priest - Power Word: Shield'),
+(33619, 0,      0,       0,     0,     'Priest - Reflective Shield'),
+(139,   0,      0.2,     0,     0,     'Priest - Renew'),
 (34433, 0.65,   0,       0,     0,     'Priest - Shadowfiend'),
-(585,   0.714,  0,       0,     0,     'Priest - Smite'),
-(34914, 0,      0.4,     0,     0,     'Priest - Vampiric Touch'),
+(28377, 0.33,   0,       0,     0,     'Priest - Shadowguard Proc'),
+(585,   0.7143, 0,       0,     0,     'Priest - Smite'),
+(10797, 0,      0.1714,  0,     0,     'Priest - Starshards'),
+(2943,  0.1,    0,       0,     0,     'Priest - Touch of Weakness Proc'),
+(34914, 0,      0.2,     0,     0,     'Priest - Vampiric Touch'),
 /* Rogue */
+(26688, 0,      0,       0,     0,     'Rogue - Anesthethic Poison'),
+(2818,  0,      0,       0,     0,     'Rogue - Deadly Poison Triggered'),
+(32645, 0,      0,       0,     0,     'Rogue - Envenom Rank 1'),
 (703,   0,      0,       0,     0.03,  'Rogue - Garrote'),
+(8680,  0,      0,       0,     0,     'Rogue - Instant Poison Triggered'),
+(13220, 0,      0,       0,     0,     'Rogue - Wound Poison'),
 /* Shaman */
+(421,   0.641,  0,       0,     0,     'Shaman - Chain Lightning'),
 (974,   0.2857, 0,       0,     0,     'Shaman - Earth Shield'),
 (379,   0,      0,       0,     0,     'Shaman - Earth Shield Triggered'),
-(8042,  0.3858, 0,       0,     0,     'Shaman - Earth Shock'),
-(8443,  0.2142, 0,       0,     0,     'Shaman - Fire Nova Totem Casted by Totem Rank 1'),
-(8504,  0.2142, 0,       0,     0,     'Shaman - Fire Nova Totem Casted by Totem Rank 2'),
-(8505,  0.2142, 0,       0,     0,     'Shaman - Fire Nova Totem Casted by Totem Rank 3'),
-(11310, 0.2142, 0,       0,     0,     'Shaman - Fire Nova Totem Casted by Totem Rank 4'),
-(11311, 0.2142, 0,       0,     0,     'Shaman - Fire Nova Totem Casted by Totem Rank 5'),
-(25538, 0.2142, 0,       0,     0,     'Shaman - Fire Nova Totem Casted by Totem Rank 6'),
-(25539, 0.2142, 0,       0,     0,     'Shaman - Fire Nova Totem Casted by Totem Rank 7'),
-(8050,  0.2142, 0.1,     0,     0,     'Shaman - Flame Shock'),
-(10444, 0,      0,       0,     0,     'Shaman - Flametongue Attack'),
+(8042,  0.3857, 0,       0,     0,     'Shaman - Earth Shock'),
+(10444, 0,      0,       0,     0,     'Shaman - Flametongue Attack Triggered'),
 (8026,  0.1,    0,       0,     0,     'Shaman - Flametongue Weapon Proc Rank 1'),
-(8028,  0.1,    0,       0,     0,     'Shaman - Flametongue Weapon Proc Rank 2'),
-(8029,  0.1,    0,       0,     0,     'Shaman - Flametongue Weapon Proc Rank 3'),
-(10445, 0.1,    0,       0,     0,     'Shaman - Flametongue Weapon Proc Rank 4'),
-(16343, 0.1,    0,       0,     0,     'Shaman - Flametongue Weapon Proc Rank 5'),
-(16344, 0.1,    0,       0,     0,     'Shaman - Flametongue Weapon Proc Rank 6'),
-(25488, 0.1,    0,       0,     0,     'Shaman - Flametongue Weapon Proc Rank 7'),
-(8056,  0.3858, 0,       0,     0,     'Shaman - Frost Shock'),
-(8034,  0.1,    0,       0,     0,     'Shaman - Frostbrand Attack Rank 1'),
-(5672,  0,      0.0450,  0,     0,     'Shaman - Healing Stream Totem'),
+(8056,  0.3857, 0,       0,     0,     'Shaman - Frost Shock'),
+(8034,  0.1,    0,       0,     0,     'Shaman - Frostbrand Attack'),
+(5672,  0,      0.045,   0,     0,     'Shaman - Healing Stream Totem'),
 (331,   0.8571, 0,       0,     0,     'Shaman - Healing Wave'),
-(403,   0.7143, 0,       0,     0,     'Shaman - Lightning Bolt'),
-(26364, 0.33,   0,       0,     0,     'Shaman - Lightning Shield Proc Rank 1'),
-(26365, 0.33,   0,       0,     0,     'Shaman - Lightning Shield Proc Rank 2'),
-(26366, 0.33,   0,       0,     0,     'Shaman - Lightning Shield Proc Rank 3'),
-(26367, 0.33,   0,       0,     0,     'Shaman - Lightning Shield Proc Rank 4'),
-(26369, 0.33,   0,       0,     0,     'Shaman - Lightning Shield Proc Rank 5'),
-(26370, 0.33,   0,       0,     0,     'Shaman - Lightning Shield Proc Rank 6'),
-(26363, 0.33,   0,       0,     0,     'Shaman - Lightning Shield Proc Rank 7'),
-(26371, 0.33,   0,       0,     0,     'Shaman - Lightning Shield Proc Rank 8'),
-(26372, 0.33,   0,       0,     0,     'Shaman - Lightning Shield Proc Rank 9'),
-(8188,  0.1,    0,       0,     0,     'Shaman - Magma Totam Passive Rank 1'),
-(10582, 0.1,    0,       0,     0,     'Shaman - Magma Totam Passive Rank 2'),
-(10583, 0.1,    0,       0,     0,     'Shaman - Magma Totam Passive Rank 3'),
-(10584, 0.1,    0,       0,     0,     'Shaman - Magma Totam Passive Rank 4'),
-(25551, 0.1,    0,       0,     0,     'Shaman - Magma Totam Passive Rank 5'),
-(3606,  0.1667, 0,       0,     0,     'Shaman - Searing Totem Attack Rank 1'),
-(6350,  0.1667, 0,       0,     0,     'Shaman - Searing Totem Attack Rank 2'),
-(6351,  0.1667, 0,       0,     0,     'Shaman - Searing Totem Attack Rank 3'),
-(6352,  0.1667, 0,       0,     0,     'Shaman - Searing Totem Attack Rank 4'),
-(10435, 0.1667, 0,       0,     0,     'Shaman - Searing Totem Attack Rank 5'),
-(10436, 0.1667, 0,       0,     0,     'Shaman - Searing Totem Attack Rank 6'),
-(25530, 0.1667, 0,       0,     0,     'Shaman - Searing Totem Attack Rank 7'),
+(403,   0.794,  0,       0,     0,     'Shaman - Lightning Bolt'),
+(26364, 0.33,   0,       0,     0,     'Shaman - Lightning Shield Proc'),
+(8187,  0.0667, 0,       0,     0,     'Shaman - Magma Totem Cast'),
+(3606,  0.1667, 0,       0,     0,     'Shaman - Searing Totem Attack'),
 /* Warlock */
 (172,   0,      0.156,   0,     0,     'Warlock - Corruption'),
 (980,   0,      0.1,     0,     0,     'Warlock - Curse of Agony'),
@@ -13258,35 +13232,45 @@ INSERT INTO `spell_bonus_data` VALUES
 (28176, 0,      0,       0,     0,     'Warlock - Fel Armor'),
 (18790, 0,      0,       0,     0,     'Warlock - Fel Stamina'),
 (755,   0,      0.2857,  0,     0,     'Warlock - Health Funnel'),
-(1949,  0,      0.0946,  0,     0,     'Warlock - Hellfire'),
-(5857,  0.1428, 0,       0,     0,     'Warlock - Hellfire Effect on Enemy Rank 1'),
-(11681, 0.1428, 0,       0,     0,     'Warlock - Hellfire Effect on Enemy Rank 2'),
-(11682, 0.1428, 0,       0,     0,     'Warlock - Hellfire Effect on Enemy Rank 3'),
-(27214, 0.1428, 0,       0,     0,     'Warlock - Hellfire Effect on Enemy Rank 4'),
-(348,   0.2,    0.2,     0,     0,     'Warlock - Immolate'),
+(1949,  0,      0.0946,  0,     0,     'Warlock - Hellfire on Self'),
+(5857,  0.1428, 0,       0,     0,     'Warlock - Hellfire Triggered on Enemy'),
 (1454,  0.8,    0,       0,     0,     'Warlock - Life Tap'),
-(42223, 0.952,  0,       0,     0,     'Warlock - Rain of Fire Triggered Rank 1'),
-(42224, 0.952,  0,       0,     0,     'Warlock - Rain of Fire Triggered Rank 2'),
-(42225, 0.952,  0,       0,     0,     'Warlock - Rain of Fire Triggered Rank 3'),
-(42226, 0.952,  0,       0,     0,     'Warlock - Rain of Fire Triggered Rank 4'),
-(42218, 0.952,  0,       0,     0,     'Warlock - Rain of Fire Triggered Rank 5'),
-(27243, 0.22,   0.25,    0,     0,     'Warlock - Seed of Corruption'),
+(42223, 0.238,  0,       0,     0,     'Warlock - Rain of Fire Triggered'),
+(27243, 0,      0.25,    0,     0,     'Warlock - Seed of Corruption DoT'),
 (686,   0.8571, 0,       0,     0,     'Warlock - Shadow Bolt'),
 (6229,  0.3,    0,       0,     0,     'Warlock - Shadow Ward'),
 (6353,  1.15,   0,       0,     0,     'Warlock - Soul Fire'),
-(30108, 0,      0.24,    0,     0,     'Warlock - Unstable Affliction'),
 (31117, 1.8,    0,       0,     0,     'Warlock - Unstable Affliction Dispell'),
 /* Item */
+(23722, 1,      0,       0,     0,     'Item - Arcane Infused Gem'),
+(40472, 0,      0,       0,     0,     'Item - Ashtongue Talisman of Zeal - Enduring Judgement'),
+(40471, 0,      0,       0,     0,     'Item - Ashtongue Talisman of Zeal - Enduring Light'),
+(40972, 0,      0,       0,     0,     'Item - Crystal Spire of Karabor'),
+(23687, 0,      0,       0,     0,     'Item - Darkmoon Card: Maelstrom'),
+(22600, 0,      0,       0,     0,     'Item - Force Reactive Disk'),
+(13897, 0,      0,       0,     0,     'Item - Fiery Weapon Enchant'),
+(28715, 0,      0,       0,     0,     'Item - Flame Cup'),
+(26170, 0,      0,       0,     0,     'Item - Garments of the Oracle Set - Oracular Heal'),
 (46567, 0,      0,       0,     0,     'Item - Goblin Rocket Launcher'),
+(20004, 0,      0,       0,     0,     'Item - Lifestealing Enchant'),
 (17712, 0,      0,       0,     0,     'Item - Lifestone Healing'),
 (5707,  0,      0,       0,     0,     'Item - Lifestone Regeneration'),
+(37661, 0,      0,       0,     0,     'Item - Lightning Capacitor'),
 (43733, 0,      0,       0,     0,     'Item - Lightning Zap'),
 (31024, 0,      0,       0,     0,     'Item - Living Ruby Pedant'),
+(11351, 0,      0,       0,     0,     'Item - Oil of Immolation'),
+(34587, 0,      0,       0,     0,     'Item - Romulo''s Poison Vial'),
+(45429, 0,      0,       0,     0,     'Item - Shattered Sun Pendant of Acumen'),
+(45428, 0,      0,       0,     0,     'Item - Shattered Sun Pendant of Might'),
+(45430, 0,      0,       0,     0,     'Item - Shattered Sun Pendant of Restoration'),
 (38395, 0,      0,       0,     0,     'Item - Siphon Essence'),
 (40293, 0,      0,       0,     0,     'Item - Siphon Essence'),
 (21179, 0,      0,       0,     0,     'Item - Six Demon Bag - Chain Lightning'),
 (15662, 0,      0,       0,     0,     'Item - Six Demon Bag - Fireball'),
-(11538, 0,      0,       0,     0,     'Item - Six Demon Bag - Frostbolt');
+(11538, 0,      0,       0,     0,     'Item - Six Demon Bag - Frostbolt'),
+(17484, 0,      0,       0,     0,     'Item - Skullforge Reaver'),
+(45055, 0,      0,       0,     0,     'Item - Timbal''s Focusing Crystal'),
+(30564, 0,      0,       0,     0,     'Item - Torment of the Worgen');
 /*!40000 ALTER TABLE `spell_bonus_data` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -13302,7 +13286,7 @@ CREATE TABLE `spell_chain` (
   `rank` tinyint(4) NOT NULL DEFAULT '0',
   `req_spell` mediumint(9) NOT NULL DEFAULT '0',
   PRIMARY KEY (`spell_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Spell Additinal Data';
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Spell Additinal Data';
 
 --
 -- Dumping data for table `spell_chain`
@@ -13332,6 +13316,22 @@ INSERT INTO `spell_chain` VALUES
 (14202,14201,12880,3,0),
 (14203,14202,12880,4,0),
 (14204,14203,12880,5,0),
+/* Fire Nova Totem Cast */
+(8349,0,8349,1,0),
+(8502,8349,8349,2,0),
+(8503,8502,8349,3,0),
+(11306,8503,8349,4,0),
+(11307,11306,8349,5,0),
+(25535,11307,8349,6,0),
+(25537,25535,8349,7,0),
+/* Flametongue Weapon Proc */
+(8026, 0, 8026, 1, 0),
+(8028, 8026, 8026, 2, 0),
+(8029, 8028, 8026, 3, 0),
+(10445, 8029, 8026, 4, 0),
+(16343, 10445, 8026, 5, 0),
+(16344, 16343, 8026, 6, 0),
+(25488, 16344, 8026, 7, 0),
 /* Frostbrand Attack */
 (8034,0,8034,1,0),
 (8037,8034,8034,2,0),
@@ -13354,6 +13354,32 @@ INSERT INTO `spell_chain` VALUES
 (11336,11335,8680,5,0),
 (11337,11336,8680,6,0),
 (26890,11337,8680,7,0),
+/* Magma Totem Cast */
+(8187,0,8187,1,0),
+(10579,8187,8187,2,0),
+(10580,10579,8187,3,0),
+(10581,10580,8187,4,0),
+(25550,10581,8187,5,0),
+/* Mana Spring Totem Auras */
+(5677,0,5677,1,0),
+(10491,5677,5677,2,0),
+(10493,10491,5677,3,0),
+(10494,10493,5677,4,0),
+(25569,10494,5677,5,0),
+/* Rain of Fire Triggered */
+(42223,0,42223,1,0),
+(42224,42223,42223,2,0),
+(42225,42224,42223,3,0),
+(42226,42225,42223,4,0),
+(42218,42226,42223,5,0),
+/* Searing Totem Attack */
+(3606,0,3606,1,0),
+(6350,3606,3606,2,0),
+(6351,6350,3606,3,0),
+(6352,6351,3606,4,0),
+(10435,6352,3606,5,0),
+(10436,10435,3606,6,0),
+(25530,10436,3606,7,0),
 /* Tranquility triggered */
 (44203,0,44203,1,0),
 (44205,44203,44203,2,0),
@@ -13377,6 +13403,14 @@ INSERT INTO `spell_chain` VALUES
 (10186,10185,10,5,0),
 (10187,10186,10,6,0),
 (27085,10187,10,7,0),
+/* Blizzard Triggered */
+(42208,0,42208,1,0),
+(42209,42208,42208,2,0),
+(42210,42209,42208,3,0),
+(42211,42210,42208,4,0),
+(42212,42211,42208,5,0),
+(42213,42212,42208,6,0),
+(42198,42213,42208,7,0),
 /* Cone of Cold */
 (120,0,120,1,0),
 (8492,120,120,2,0),
@@ -13642,6 +13676,13 @@ INSERT INTO `spell_chain` VALUES
 (34864,34863,34861,3,0),
 (34865,34864,34861,4,0),
 (34866,34865,34861,5,0),
+/* Chastise */
+(44041,0,44041,1,0),
+(44043,44041,44041,2,0),
+(44044,44043,44041,3,0),
+(44045,44044,44041,4,0),
+(44046,44045,44041,5,0),
+(44047,44046,44041,6,0),
 /* Desperate Prayer */
 (13908,0,13908,1,0),
 (19236,13908,13908,2,0),
@@ -13692,6 +13733,14 @@ INSERT INTO `spell_chain` VALUES
 (27800,27799,15237,5,0),
 (27801,27800,15237,6,0),
 (25331,27801,15237,7,0),
+/* Holy Nova Heal */
+(23455,0,23455,1,0),
+(23458,23455,23455,2,0),
+(23459,23458,23455,3,0),
+(27803,23459,23455,4,0),
+(27804,27803,23455,5,0),
+(27805,27804,23455,6,0),
+(25329,27805,23455,7,0),
 /* Lesser Heal */
 (2050,0,2050,1,0),
 (2052,2050,2050,2,0),
@@ -13701,6 +13750,11 @@ INSERT INTO `spell_chain` VALUES
 (27870,724,724,2,0),
 (27871,27870,724,3,0),
 (28275,27871,724,4,0),
+/* Lightwell Renew */
+(7001,0,7001,1,0),
+(27873,7001,7001,2,0),
+(27874,27873,7001,3,0),
+(28276,27874,7001,4,0),
 /* Prayer of Healing */
 (596,0,596,1,0),
 (996,596,596,2,0),
@@ -13814,6 +13868,14 @@ INSERT INTO `spell_chain` VALUES
 (19311,19310,18137,5,0),
 (19312,19311,18137,6,0),
 (25477,19312,18137,7,0),
+/* Shadowguard Proc */
+(28377,0,28377,1,0),
+(28378,28377,28377,2,0),
+(28379,28378,28377,3,0),
+(28380,28379,28377,4,0),
+(28381,28380,28377,5,0),
+(28382,28381,28377,6,0),
+(28385,28382,28377,7,0),
 /* Shadow Protection */
 (976,0,976,1,0),
 (10957,976,976,2,0),
@@ -13840,6 +13902,15 @@ INSERT INTO `spell_chain` VALUES
 (19264,19262,2652,4,0),
 (19265,19264,2652,5,0),
 (19266,19265,2652,6,0),
+(25461,19266,2652,7,0),
+/* Touch of Weakness Proc */
+(2943,0,2943,1,0),
+(19249,2943,2943,2,0),
+(19251,19249,2943,3,0),
+(19252,19251,2943,4,0),
+(19253,19252,2943,5,0),
+(19254,19253,2943,6,0),
+(25460,19254,2943,7,0),
 /* Vampiric Touch */
 (34914,0,34914,1,0),
 (34916,34914,34914,2,0),
@@ -13964,6 +14035,13 @@ INSERT INTO `spell_chain` VALUES
 (24274,24275,24275,2,0),
 (24239,24274,24275,3,0),
 (27180,24239,24275,4,0),
+/* Judgement of Command Proc */
+(20467,0,20467,1,0),
+(20963,20467,20467,2,0),
+(20964,20963,20467,3,0),
+(20965,20964,20467,4,0),
+(20966,20965,20467,5,0),
+(27171,20966,20467,6,0),
 /* Seal of Command */
 (20375,0,20375,1,0),
 (20915,20375,20375,2,0),
@@ -14033,6 +14111,18 @@ INSERT INTO `spell_chain` VALUES
 (27075,25345,5143,9,0),
 (38699,27075,5143,10,0),
 (38704,38699,5143,11,0),
+/* Arcane Missiles Triggered */
+(7268,0,7268,1,0),
+(7269,7268,7268,2,0),
+(7270,7269,7268,3,0),
+(8419,7270,7268,4,0),
+(8418,8419,7268,5,0),
+(10273,8418,7268,6,0),
+(10274,10273,7268,7,0),
+(25346,10274,7268,8,0),
+(27076,25346,7268,9,0),
+(38700,27076,7268,10,0),
+(38703,38700,7268,11,0),
 /* Conjure Food */
 (587,0,587,1,0),
 (597,587,587,2,0),
@@ -14343,6 +14433,16 @@ INSERT INTO `spell_chain` VALUES
 (10432,10431,324,7,0),
 (25469,10432,324,8,0),
 (25472,25469,324,9,0),
+/* Lightning Shield Proc */
+(26364,0,26364,1,0),
+(26365,26364,26364,2,0),
+(26366,26365,26364,3,0),
+(26367,26366,26364,4,0),
+(26369,26367,26364,5,0),
+(26370,26369,26364,6,0),
+(26363,26370,26364,7,0),
+(26371,26363,26364,8,0),
+(26372,26371,26364,9,0),
 /* Nature Resistance Totem */
 (10595,0,10595,1,0),
 (10600,10595,10595,2,0),
@@ -14700,6 +14800,11 @@ INSERT INTO `spell_chain` VALUES
 (11683,1949,1949,2,0),
 (11684,11683,1949,3,0),
 (27213,11684,1949,4,0),
+/* Hellfire Effect Triggered */
+(5857,0,5857,1,0),
+(11681,5857,5857,2,0),
+(11682,11681,5857,3,0),
+(27214,11682,5857,4,0),
 /* Immolate */
 (348,0,348,1,0),
 (707,348,348,2,0),
@@ -14826,6 +14931,16 @@ INSERT INTO `spell_chain` VALUES
 (2812,0,2812,1,0),
 (10318,2812,2812,2,0),
 (27139,10318,2812,3,0),
+/* Judgement of Righteousness */
+(20187,0,20187,1,0),
+(20280,20187,20187,2,0),
+(20281,20280,20187,3,0),
+(20282,20281,20187,4,0),
+(20283,20282,20187,5,0),
+(20284,20283,20187,6,0),
+(20285,20284,20187,7,0),
+(20286,20285,20187,8,0),
+(27157,20286,20187,9,0),
 /* Redemption */
 (7328,0,7328,1,0),
 (10322,7328,7328,2,0),
@@ -14837,15 +14952,16 @@ INSERT INTO `spell_chain` VALUES
 (20347,20165,20165,2,0),
 (20348,20347,20165,3,0),
 (20349,20348,20165,4,0),
-/* Seal of Righteousness */
-(20287,21084,20154,3,0),
-(20288,20287,20154,4,0),
-(20289,20288,20154,5,0),
-(20290,20289,20154,6,0),
-(20291,20290,20154,7,0),
-(20292,20291,20154,8,0),
-(20293,20292,20154,9,0),
-(27155,20293,20154,10,0),
+/* Seal of Righteousness Proc */
+(25742,0,25742,1,0),
+(25740,25742,25742,2,0),
+(25739,25740,25742,3,0),
+(25738,25739,25742,4,0),
+(25737,25738,25742,5,0),
+(25736,25737,25742,6,0),
+(25735,25736,25742,7,0),
+(25713,25735,25742,8,0),
+(27156,25713,25742,9,0),
 /* Seal of Wisdom */
 (20166,0,20166,1,0),
 (20356,20166,20166,2,0),
@@ -14942,7 +15058,7 @@ CREATE TABLE `spell_elixir` (
   `entry` int(11) unsigned NOT NULL DEFAULT '0' COMMENT 'SpellId of potion',
   `mask` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT 'Mask 0x1 battle 0x2 guardian 0x3 flask 0x7 unstable flasks 0xB shattrath flasks',
   PRIMARY KEY (`entry`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Spell System';
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Spell System';
 
 --
 -- Dumping data for table `spell_elixir`
@@ -15070,7 +15186,7 @@ CREATE TABLE `spell_learn_spell` (
   `SpellID` smallint(5) unsigned NOT NULL DEFAULT '0',
   `Active` tinyint(3) unsigned NOT NULL DEFAULT '1',
   PRIMARY KEY (`entry`,`SpellID`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Item System';
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Item System';
 
 --
 -- Dumping data for table `spell_learn_spell`
@@ -15253,7 +15369,7 @@ INSERT INTO `spell_proc_event` VALUES
 (17799, 0x20,  0, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x00000000, 0x00000000, 0.000000, 0.000000,  0),
 (17800, 0x20,  0, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x00000000, 0x00000000, 0.000000, 0.000000,  0),
 (18094, 0x00,  5, 0x000000000000000A, 0x000000000000000A, 0x000000000000000A, 0x00000000, 0x00000000, 0.000000, 0.000000,  0),
-(18096, 0x00,  5, 0x0000008000000060, 0x0000008000000060, 0x0000008000000060, 0x00000000, 0x00000000, 0.000000, 0.000000,  0),
+(18096, 0x00,  5, 0x0000008000000060, 0x0000008000000060, 0x0000008000000060, 0x00051000, 0x00000000, 0.000000, 0.000000,  0),
 (18119, 0x00,  5, 0x000010C0000003E5, 0x000010C0000003E5, 0x000010C0000003E5, 0x00000000, 0x00000000, 0.000000, 0.000000,  0),
 (18137, 0x7F,  0, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x00000000, 0x00000000, 0.000000, 0.000000,  3),
 (18820, 0x7F,  0, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x00000000, 0x00010000, 0.000000, 0.000000,  0),
@@ -15588,7 +15704,7 @@ CREATE TABLE `spell_target_position` (
   `target_position_z` float NOT NULL DEFAULT '0',
   `target_orientation` float NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Spell System';
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Spell System';
 
 --
 -- Dumping data for table `spell_target_position`
@@ -15618,7 +15734,7 @@ CREATE TABLE `spell_template` (
   `effect0_trigger_spell` int(11) unsigned NOT NULL DEFAULT '0',
   `comments` varchar(255) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='MaNGOS server side spells';
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='MaNGOS server side spells';
 
 --
 -- Dumping data for table `spell_template`
@@ -15669,7 +15785,7 @@ CREATE TABLE `spell_threat` (
   `multiplier` float NOT NULL DEFAULT '1' COMMENT 'threat multiplier for damage/healing',
   `ap_bonus` float NOT NULL DEFAULT '0' COMMENT 'additional threat bonus from attack power',
   PRIMARY KEY (`entry`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 
 --
 -- Dumping data for table `spell_threat`
@@ -15678,99 +15794,157 @@ CREATE TABLE `spell_threat` (
 LOCK TABLES `spell_threat` WRITE;
 /*!40000 ALTER TABLE `spell_threat` DISABLE KEYS */;
 INSERT INTO `spell_threat` VALUES
-(   72, 180, 1, 0),
-(   78,  20, 1, 0),
-(   99,  15, 1, 0),
-(  284,  39, 1, 0),
-(  285,  59, 1, 0),
-(  770, 108, 1, 0),
-(  845,  10, 1, 0),
-( 1160,  43, 1, 0),
-( 1608,  78, 1, 0),
-( 1715,  61, 1, 0),
-( 1735,  25, 1, 0),
-( 2139, 300, 1, 0),
-( 2649, 415, 1, 0),
-( 3716, 395, 1, 0),
-( 5679,   0, 2, 0),
-( 6343,  17, 1, 0),
-( 6572, 155, 1, 0),
-( 6574, 195, 1, 0),
-( 6673,  60, 1, 0),
-( 6807,  89, 1, 0),
-( 7369,  40, 1, 0),
-( 7372, 101, 1, 0),
-( 7373, 141, 1, 0),
-( 7379, 235, 1, 0),
-( 7386, 100, 1, 0),
-( 7405, 140, 1, 0),
-( 8092,   0, 2, 0),
-( 8198,  40, 1, 0),
-( 8204,  64, 1, 0),
-( 8205,  96, 1, 0),
-( 8380, 180, 1, 0),
-( 8972, 118, 1, 0),
-( 9490,  29, 1, 0),
-( 9745, 148, 1, 0),
-( 9747,  36, 1, 0),
-( 9880, 178, 1, 0),
-( 9881, 207, 1, 0),
-( 9898,  42, 1, 0),
-(11564,  98, 1, 0),
-(11565, 118, 1, 0),
-(11566, 137, 1, 0),
-(11567, 145, 1, 0),
-(11580, 143, 1, 0),
-(11581, 180, 1, 0),
-(11596, 220, 1, 0),
-(11597, 261, 1, 0),
-(11600, 275, 1, 0),
-(11601, 315, 1, 0),
-(11608,  60, 1, 0),
-(11609,  70, 1, 0),
-(14274, 200, 1, 0),
-(15629, 300, 1, 0),
-(15630, 400, 1, 0),
-(15631, 500, 1, 0),
-(15632, 600, 1, 0),
-(16857, 108, 1, 0),
-(17735, 200, 1, 0),
-(17750, 300, 1, 0),
-(17751, 450, 1, 0),
-(17752, 600, 1, 0),
-(20243, 101, 1, 0),
-(20569, 100, 1, 0),
-(20736, 100, 1, 0),
-(20925,  20, 1, 0),
-(20927,  30, 1, 0),
-(20928,  40, 1, 0),
-(23922, 160, 1, 0),
-(23923, 190, 1, 0),
-(23924, 220, 1, 0),
-(23925, 250, 1, 0),
-(24394, 580, 1, 0),
-(24640,   5, 1, 0),
-(25225, 300, 1, 0),
-(25231, 130, 1, 0),
-(25258, 286, 1, 0),
-(25264, 215, 1, 0),
-(25269, 400, 1, 0),
-(25286, 175, 1, 0),
-(25288, 355, 1, 0),
-(26993, 127, 1, 0),
-(26996, 176, 1, 0),
-(26998,  49, 1, 0),
-(27011, 127, 1, 0),
-(27179,  54, 1, 0),
-(29704, 230, 1, 0),
-(29707, 196, 1, 0),
-(30324, 220, 1, 0),
-(30356, 323, 1, 0),
-(30357, 483, 1, 0),
-(33745, 285, 1, 0),
-(33878, 129, 1, 0),
-(33986, 180, 1, 0),
-(33987, 232, 1, 0);
+(   17,      20,    1,    0),
+(   72,     180,    1,    0),
+(   78,      20,    1,    0),
+(   99,      15,    1,    0),
+(  284,      39,    1,    0),
+(  285,      59,    1,    0),
+(  469,      68,    1,    0),
+(  592,      45,    1,    0),
+(  600,      80,    1,    0),
+(  676,     104,    1,    0),
+(  694,      60,    1,    0),
+(  702,       4,    1,    0),
+(  704,      15,    1,    0),
+(  710,      55,    1,    0),
+(  770,     108,    1,    0),
+(  845,      10,    1,    0),
+(  853,      15,    1,    0),
+( 1108,      12,    1,    0),
+( 1160,      56,    1,    0),
+( 1490,      30,    1,    0),
+( 1608,      78,    1,    0),
+( 1714,      25,    1,    0),
+( 1715,      61,    1,    0),
+( 1735,      25,    1,    0),
+( 2139,     500,    1,    0),
+( 2649,     415,    1,    0),
+( 3716,     395,    1,    0),
+( 3747,     120,    1,    0),
+( 5138,       0,    0,    0),
+( 5588,      50,    1,    0),
+( 5589,      80,    1,    0),
+( 5676,       0,    2,    0),
+( 5677,       0,    0,    0),
+( 5679,       0,    2,    0),
+( 5782,       8,    1,    0),
+( 6065,     150,    1,    0),
+( 6066,     190,    1,    0),
+( 6205,      22,    1,    0),
+( 6213,      32,    1,    0),
+( 6215,      55,    1,    0),
+( 6343,       0, 1.75,    0),
+( 6572,     155,    1,    0),
+( 6574,     195,    1,    0),
+( 6673,      69,    1,    0),
+( 6807,      89,    1,    0),
+( 7369,      40,    1,    0),
+( 7372,     101,    1,    0),
+( 7373,     141,    1,    0),
+( 7379,     235,    1,    0),
+( 7386,     100,    1,    0),
+( 7400,      90,    1,    0),
+( 7402,     130,    1,    0),
+( 7405,     140,    1,    0),
+( 7646,      32,    1,    0),
+( 7658,      30,    1,    0),
+( 7659,      50,    1,    0),
+( 8056,       0,    2,    0),
+( 8092,       0,    2,    0),
+( 8380,     180,    1,    0),
+( 8972,     118,    1,    0),
+( 9490,      29,    1,    0),
+( 9745,     148,    1,    0),
+( 9747,      36,    1,    0),
+( 9880,     178,    1,    0),
+( 9881,     207,    1,    0),
+( 9898,      42,    1,    0),
+(10308,      80,    1,    0),
+(10898,     240,    1,    0),
+(10899,     300,    1,    0),
+(10900,     380,    1,    0),
+(10901,     470,    1,    0),
+(11564,      98,    1,    0),
+(11565,     118,    1,    0),
+(11566,     137,    1,    0),
+(11567,     145,    1,    0),
+(11596,     220,    1,    0),
+(11597,     261,    1,    0),
+(11600,     275,    1,    0),
+(11601,     315,    1,    0),
+(11608,      60,    1,    0),
+(11609,      70,    1,    0),
+(11707,      40,    1,    0),
+(11708,      50,    1,    0),
+(11717,      55,    1,    0),
+(11719,      50,    1,    0),
+(11721,      45,    1,    0),
+(11722,      60,    1,    0),
+(12798,      25,    1,    0),
+(14274,     200,    1,    0),
+(15237,       0,    0,    0),
+(15629,     300,    1,    0),
+(15630,     400,    1,    0),
+(15631,     500,    1,    0),
+(15632,     600,    1,    0),
+(16857,     108,    1,    0),
+(17735,     200,    1,    0),
+(17750,     300,    1,    0),
+(17751,     450,    1,    0),
+(17752,     600,    1,    0),
+(17862,      45,    1,    0),
+(17937,      55,    1,    0),
+(18647,      95,    1,    0),
+(20243,     106,    1,    0),
+(20559,     180,    1,    0),
+(20560,     230,    1,    0),
+(20569,     100,    1,    0),
+(20647,       0, 1.25,    0),
+(20736,     100,    1,    0),
+(20925,       0, 1.35,    0),
+(20927,      30,    1,    0),
+(20928,      40,    1,    0),
+(23455,       0,    0,    0),
+(23922,     160,    1,    0),
+(23923,     190,    1,    0),
+(23924,     220,    1,    0),
+(23925,     250,    1,    0),
+(24394,     580,    1,    0),
+(24640,       5,    1,    0),
+(25212,     181,    1,    0),
+(25217,     575,    1,    0),
+(25218,     660,    1,    0),
+(25225,     300,    1,    0),
+(25231,     130,    1,    0),
+(25258,     286,    1,    0),
+(25266,     290,    1,    0),
+(25269,     400,    1,    0),
+(25286,     175,    1,    0),
+(25288,     355,    1,    0),
+(26688,       0,    0,    0),
+(26993,     127,    1,    0),
+(26996,     176,    1,    0),
+(26998,      49,    1,    0),
+(27011,     127,    1,    0),
+(27179,      54,    1,    0),
+(27224,      60,    1,    0),
+(27226,      70,    1,    0),
+(27228,      70,    1,    0),
+(27229,      65,    1,    0),
+(28377,       0,    0,    0),
+(29704,     230,    1,    0),
+(29707,     196,    1,    0),
+(30324,     220,    1,    0),
+(30356,     323,    1,    0),
+(30357,     483,    1,    0),
+(30909,      70,    1,    0),
+(32546,       0,  0.5,    0),
+(33619,       0,    0,    0),
+(33745,     285,    1,    0),
+(33778,       0,    0,    0),
+(33878,       0,  1.3,    0),
+(44041,       0,  0.5,    0);
 /*!40000 ALTER TABLE `spell_threat` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -15784,7 +15958,7 @@ CREATE TABLE `transports` (
   `name` text,
   `period` mediumint(8) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`entry`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Transports';
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Transports';
 
 --
 -- Dumping data for table `transports`

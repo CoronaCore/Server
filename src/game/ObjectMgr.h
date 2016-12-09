@@ -20,13 +20,11 @@
 #define _OBJECTMGR_H
 
 #include "Common.h"
-#include "Log.h"
 #include "Object.h"
 #include "Bag.h"
 #include "Creature.h"
 #include "Player.h"
 #include "GameObject.h"
-#include "Corpse.h"
 #include "QuestDef.h"
 #include "ItemPrototype.h"
 #include "NPCHandler.h"
@@ -35,11 +33,9 @@
 #include "MapPersistentStateMgr.h"
 #include "ObjectAccessor.h"
 #include "ObjectGuid.h"
-#include "Policies/Singleton.h"
 
-#include <string>
 #include <map>
-#include <limits>
+#include <climits>
 
 class Group;
 class ArenaTeam;
@@ -73,6 +69,7 @@ struct AreaTrigger
     float  target_Y;
     float  target_Z;
     float  target_Orientation;
+    uint32 conditionId;
 
     // Operators
     bool IsMinimal() const
@@ -108,7 +105,7 @@ typedef std::unordered_map<uint32/*(mapid,spawnMode) pair*/, CellObjectGuidsMap>
 #define MAX_CREATURE_AI_TEXT_STRING_ID (-1000000)
 // Anything below MAX_CREATURE_AI_TEXT_STRING_ID is handled by the external script lib
 
-static_assert(MAX_DB_SCRIPT_STRING_ID < ACE_INT32_MAX, "Must scope with int32 range");
+static_assert(MAX_DB_SCRIPT_STRING_ID < INT_MAX, "Must scope with int32 range");
 
 struct MangosStringLocale
 {
@@ -186,7 +183,8 @@ typedef std::pair<QuestRelationsMap::const_iterator, QuestRelationsMap::const_it
 
 struct PetLevelInfo
 {
-    PetLevelInfo() : health(0), mana(0) { for (int i = 0; i < MAX_STATS; ++i) stats[i] = 0; }
+    PetLevelInfo() : health(0), mana(0), armor(0)
+    { for (int i = 0; i < MAX_STATS; ++i) stats[i] = 0; }
 
     uint16 stats[MAX_STATS];
     uint16 health;
@@ -343,16 +341,19 @@ enum ConditionType
 
 enum ConditionSource                                        // From where was the condition called?
 {
-    CONDITION_FROM_LOOT             = 0,                    // Used to check a *_loot_template entry
-    CONDITION_FROM_REFERING_LOOT    = 1,                    // Used to check a entry refering to a reference_loot_template entry
-    CONDITION_FROM_GOSSIP_MENU      = 2,                    // Used to check a gossip menu menu-text
-    CONDITION_FROM_GOSSIP_OPTION    = 3,                    // Used to check a gossip menu option-item
-    CONDITION_FROM_EVENTAI          = 4,                    // Used to check EventAI Event "On Receive Emote"
-    CONDITION_FROM_HARDCODED        = 5,                    // Used to check a hardcoded event - not actually a condition
-    CONDITION_FROM_VENDOR           = 6,                    // Used to check a condition from a vendor
-    CONDITION_FROM_SPELL_AREA       = 7,                    // Used to check a condition from spell_area table
-    CONDITION_FROM_RESERVED_1       = 8,                    // reserved for 3.x and later
-    CONDITION_FROM_DBSCRIPTS        = 9,                    // Used to check a condition from DB Scripts Engine
+    CONDITION_FROM_LOOT                 = 0,                    // Used to check a *_loot_template entry
+    CONDITION_FROM_REFERING_LOOT        = 1,                    // Used to check a entry refering to a reference_loot_template entry
+    CONDITION_FROM_GOSSIP_MENU          = 2,                    // Used to check a gossip menu menu-text
+    CONDITION_FROM_GOSSIP_OPTION        = 3,                    // Used to check a gossip menu option-item
+    CONDITION_FROM_EVENTAI              = 4,                    // Used to check EventAI Event "On Receive Emote"
+    CONDITION_FROM_HARDCODED            = 5,                    // Used to check a hardcoded event - not actually a condition
+    CONDITION_FROM_VENDOR               = 6,                    // Used to check a condition from a vendor
+    CONDITION_FROM_SPELL_AREA           = 7,                    // Used to check a condition from spell_area table
+    CONDITION_FROM_RESERVED_1           = 8,                    // reserved for 3.x and later
+    CONDITION_FROM_DBSCRIPTS            = 9,                    // Used to check a condition from DB Scripts Engine
+    CONDITION_FROM_TRAINER              = 10,                   // Used to check a condition from npc_trainer and npc_trainer_template
+    CONDITION_FROM_AREATRIGGER_TELEPORT = 11,                   // Used to check a condition from areatrigger_teleport
+    CONDITION_FROM_QUEST                = 12,                   // Used to check a condition from quest_template
 };
 
 class PlayerCondition
@@ -463,12 +464,13 @@ class ObjectMgr
         typedef std::unordered_map<uint32, PetCreateSpellEntry> PetCreateSpellMap;
 
         void LoadGameobjectInfo();
-        void AddGameobjectInfo(GameObjectInfo* goinfo);
 
         void PackGroupIds();
         Group* GetGroupById(uint32 id) const;
         void AddGroup(Group* group);
         void RemoveGroup(Group* group);
+        GroupMap::iterator GetGroupMapBegin() { return mGroupMap.begin(); }
+        GroupMap::iterator GetGroupMapEnd() { return mGroupMap.end(); }
 
         ArenaTeam* GetArenaTeamById(uint32 arenateamid) const;
         ArenaTeam* GetArenaTeamByName(const std::string& arenateamname) const;
@@ -506,9 +508,9 @@ class ObjectMgr
         uint32 GetPlayerAccountIdByGUID(ObjectGuid guid) const;
         uint32 GetPlayerAccountIdByPlayerName(const std::string& name) const;
 
-        uint32 GetNearestTaxiNode(float x, float y, float z, uint32 mapid, Team team);
-        void GetTaxiPath(uint32 source, uint32 destination, uint32& path, uint32& cost);
-        uint32 GetTaxiMountDisplayId(uint32 id, Team team, bool allowed_alt_team = false);
+        uint32 GetNearestTaxiNode(float x, float y, float z, uint32 mapid, Team team) const;
+        void GetTaxiPath(uint32 source, uint32 destination, uint32& path, uint32& cost) const;
+        uint32 GetTaxiMountDisplayId(uint32 id, Team team, bool allowed_alt_team = false) const;
 
         Quest const* GetQuestTemplate(uint32 quest_id) const
         {

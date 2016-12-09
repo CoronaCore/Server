@@ -20,10 +20,8 @@
 #include "ObjectMgr.h"
 #include "Policies/Singleton.h"
 #include "Player.h"
-#include "WorldPacket.h"
 #include "Item.h"
 #include "Corpse.h"
-#include "GridNotifiers.h"
 #include "MapManager.h"
 #include "Map.h"
 #include "CellImpl.h"
@@ -31,7 +29,6 @@
 #include "ObjectGuid.h"
 #include "World.h"
 
-#include <cmath>
 #include <mutex>
 
 #define CLASS_LOCK MaNGOS::ClassLevelLockable<ObjectAccessor, std::mutex>
@@ -98,7 +95,7 @@ Player* ObjectAccessor::FindPlayerByName(const char* name)
 }
 
 void
-ObjectAccessor::SaveAllPlayers()
+ObjectAccessor::SaveAllPlayers() const
 {
     HashMapHolder<Player>::ReadGuard g(HashMapHolder<Player>::GetLock());
     HashMapHolder<Player>::MapType& m = sObjectAccessor.GetPlayers();

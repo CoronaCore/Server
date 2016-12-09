@@ -19,7 +19,6 @@
 #ifndef AUCTION_HOUSE_BOT_H
 #define AUCTION_HOUSE_BOT_H
 
-#include "World.h"
 #include "Config/Config.h"
 #include "AuctionHouseMgr.h"
 #include "SharedDefines.h"
@@ -127,7 +126,7 @@ class AuctionBotConfig
     public:
         AuctionBotConfig();
 
-        void        SetConfigFileName(char const* filename) { m_configFileName = filename; }
+        void        SetConfigFileName(const std::string &filename) { m_configFileName = filename; }
         bool        Initialize();
         const char* GetAHBotIncludes() const { return m_AHBotIncludes.c_str(); }
         const char* GetAHBotExcludes() const { return m_AHBotExcludes.c_str(); }
@@ -202,14 +201,14 @@ class AuctionHouseBot
         void Initialize();
 
         // Followed method is mainly used by level3.cpp for ingame/console command
-        void SetItemsRatio(uint32 al, uint32 ho, uint32 ne);
-        void SetItemsRatioForHouse(AuctionHouseType house, uint32 val);
-        void SetItemsAmount(uint32(&vals)[MAX_AUCTION_QUALITY]);
-        void SetItemsAmountForQuality(AuctionQuality quality, uint32 val);
+        void SetItemsRatio(uint32 al, uint32 ho, uint32 ne) const;
+        void SetItemsRatioForHouse(AuctionHouseType house, uint32 val) const;
+        void SetItemsAmount(uint32(&vals)[MAX_AUCTION_QUALITY]) const;
+        void SetItemsAmountForQuality(AuctionQuality quality, uint32 val) const;
         bool ReloadAllConfig();
-        void Rebuild(bool all);
+        void Rebuild(bool all) const;
 
-        void PrepareStatusInfos(AuctionHouseBotStatusInfo& statusInfo);
+        void PrepareStatusInfos(AuctionHouseBotStatusInfo& statusInfo) const;
     private:
         void InitilizeAgents();
 
